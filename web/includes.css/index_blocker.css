@@ -1,0 +1,22 @@
+.blocker
+	{
+	background-color: rgba(0, 0, 0, 0.44);
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	z-index: 2; /* line = 1, apointment = 2 */
+	}
+
+.blocking_layer
+	{
+	background-color: rgba(0, 0, 0, 0.44);
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	z-index: 2; /* line = 1, apointment = 2 */
+	}
+

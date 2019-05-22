@@ -1,0 +1,33 @@
+.contacts_data_image
+	{
+	padding: 9px;
+	position: absolute;
+	}
+
+.contacts_data_text
+	{
+	left: 64px;
+	line-height: 64px;
+	position: absolute;
+	}
+
+.contacts_row_data
+	{
+	position: relative;
+	height: 64px;
+	}
+
+.contacts_row_title
+	{
+	background-color: #4080C0;
+	color: #FFFFFF;
+	height: 24px;
+	}
+
+.contacts_title_text
+	{
+	font-weight: bold;
+	line-height: 24px;
+	padding: 0px 0px 0px 5px;
+	}
+

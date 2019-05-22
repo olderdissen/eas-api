@@ -1,0 +1,92 @@
+html, body
+	{
+	height: 100%;
+	margin: 0px;
+	color: rgb(0, 0, 0);
+	background-color: rgb(192, 192, 192);
+	}
+
+html, body, p, td, div, span
+	{
+	-moz-user-select: none;
+	cursor: default;
+	}
+
+body
+	{
+	overflow: hidden;
+	}
+
+a:active, a:hover, a:link, a:visited
+	{
+	color: rgb(0, 0, 0);
+	}
+
+p, td
+	{
+	font-family: 'Tahoma';
+	font-size: 11px;
+	padding: 2px;
+	}
+
+table
+	{
+	border-collapse: collapse;
+	}
+
+input, select, textarea
+	{
+	border: solid 1px;
+	border-color: rgb(0, 0, 0);
+	background-color: rgb(255, 255, 255);
+	background-color: rgb(224, 224, 224);
+	font-family: Verdana;
+	font-size: 11px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	}
+
+.xs
+	{
+	height: 18px;
+	width: 254px;
+	}
+
+.xt, .xi
+	{
+	height: 14px;
+	width: 250px;
+	}
+
+.xt
+	{
+	padding-top: 2px;
+	padding-left: 2px;
+	min-height: 14px;
+	min-width: 250px;
+	max-width: 250px;
+	}
+
+.xi
+	{
+	padding-left: 2px;
+	}
+
+.xl
+	{
+	cursor: pointer;
+	}
+
+.field_label
+	{
+	text-align: right;
+	min-width: 165px;
+	}
+
+.span_link
+	{
+	text-decoration: underline;
+	cursor: pointer;
+	}

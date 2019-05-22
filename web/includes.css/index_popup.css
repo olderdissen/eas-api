@@ -1,0 +1,142 @@
+.popup_border_a
+	{
+	border-bottom-color: #808080;
+	border-left-color: #FFFFFF;
+	border-right-color: #808080;
+	border-top-color: #FFFFFF;
+	}
+
+.popup_border_b
+	{
+	border-bottom-color: #FFFFFF;
+	border-left-color: #808080;
+	border-right-color: #FFFFFF;
+	border-top-color: #808080;
+	}
+
+.popup_progress
+	{
+	background-color: #C0C0C0;
+	border-style: solid;
+	border-width: 1px;
+	cursor: pointer;
+	height: 18px;
+	}
+
+.popup_button
+	{
+	background-color: #C0C0C0;
+	border-style: solid;
+	border-width: 1px;
+	padding: 2px;
+	position: absolute;
+	text-align: center;
+	width: 75px;
+	color: #000000;
+	}
+
+.popup_button_disabled
+	{
+	background-color: #C0C0C0;
+	border-style: solid;
+	border-width: 1px;
+	padding: 2px;
+	position: absolute;
+	text-align: center;
+	width: 75px;
+	color: #808080;
+	}
+
+.popup_button_enabled
+	{
+	background-color: #C0C0C0;
+	border-style: solid;
+	border-width: 1px;
+	padding: 2px;
+	position: absolute;
+	text-align: center;
+	width: 75px;
+	color: #000000;
+	}
+
+.popup_buttons
+	{
+	padding: 0px 10px 10px 10px;
+	height: 26px;
+	}
+
+.popup_input
+	{
+	background-color: #E0E0E0;
+	border-style: solid;
+	border-width: 1px;
+	color: #000000;
+	cursor: text;
+	height: 14px;
+	padding: 2px;
+	position: absolute;
+	text-align: left;
+	}
+
+.popup_title
+	{
+	background-color: #4080C0;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	color: #FFFFFF;
+	font-weight: bold;
+	height: 24px;
+	line-height: 24px;
+	padding-left: 5px;
+
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis; 
+	}
+
+.popup_text
+	{
+	color: #000000;
+	padding: 10px;
+	text-align: justify;
+	}
+
+.popup_dialog
+	{
+	background-color: #E0E0E0;
+	border-color: #000000;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-style: solid;
+	border-width: 1px;
+	font-family: verdana;
+	font-size: 12px;
+	position: absolute;
+	}
+
+.popup_layer
+	{
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	z-index: 3; /* line = 1, apointment = 2 */
+	}
+
+.popup_menu_over
+	{
+	background-color: #C0C0C0;
+	color: #000000;
+	padding: 2px;
+	padding-left: 4px;
+	}
+
+.popup_menu_out
+	{
+	background-color: #FFFFFF;
+	color: #000000;
+	padding: 2px;
+	padding-left: 4px;
+	}
+

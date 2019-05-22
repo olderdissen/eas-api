@@ -1,0 +1,18 @@
+.progress
+	{
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	}
+
+.progress_image
+	{
+	position: absolute;
+	}
+
+.progress_text
+	{
+	font-weight: bold;
+	text-align: center;
+	}
+

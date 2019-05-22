@@ -1,0 +1,420 @@
+.calendar
+	{
+	border-collapse: collapse;
+	height: 100%;
+	width: 100%;
+	}
+
+.calendar_agenda_date
+	{
+	line-height: 24px;
+	padding: 0px 0px 0px 5px;
+	font-weight: bold;
+	}
+
+.calendar_agenda_location
+	{
+	padding: 0px 0px 0px 5px;
+	}
+
+.calendar_agenda_row_data
+	{
+	background-color: white;
+	width: 100%;
+	}
+
+.calendar_agenda_row_date
+	{
+	background-color: #E0E0E0;
+	height: 24px;
+	width: 100%;
+	}
+
+.calendar_agenda_row_delimiter
+	{
+	height: 1px;
+	width: 100%;
+	}
+
+.calendar_agenda_subject
+	{
+	color: #4080FF;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 0px 0px 0px 5px;
+	}
+
+.calendar_agenda_time
+	{
+	padding: 0px 0px 0px 5px;
+	}
+
+.calendar_birthday_month
+	{
+	cursor: pointer;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: 7pt;
+	left: -225%;
+	position: absolute;
+	width: 200%;
+	}
+
+.calendar_day_hour_other
+	{
+	background-color: white;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	}
+
+.calendar_day_hour_selected
+	{
+	background-color: #4080FF;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	}
+
+.calendar_event_border
+	{
+	background: #4080C0;
+	border: solid 1px;
+	border-radius: 4px;
+	color: #80C0F0;
+	height: 100%;
+	position: relative;
+	top: 0px;
+	}
+
+.calendar_event_text
+	{
+	color: white;
+	font-family: Verdana;
+	font-size: 10px;
+	padding: 4px;
+	padding-left: 5px;
+	}
+
+.calendar_event_day
+	{
+	position: absolute;
+	z-index: 1;
+	}
+
+.calendar_event_text:hover
+	{
+	color: black;
+	}
+
+.calendar_event_month
+	{
+	background: #4080C0;
+	position: absolute;
+	width: 100%;
+	}
+
+.calendar_marker
+	{
+	background-color: red;
+	height: 2px;
+	position: absolute;
+	}
+
+.calendar_month
+	{
+	border-collapse: collapse;
+	height: 100%;
+	table-layout: fixed;
+	width: 100%;
+	position: absolute;
+	}
+
+.calendar_month_day
+	{
+	background-color: white;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	color: black;
+	height: 16%;
+	padding: 0px;
+	}
+
+.calendar_month_day_container
+	{
+	height: 100%;
+	width: 100%;
+	position: relative;
+	}
+
+.calendar_month_day_other
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	color: #808080;
+	height: 16%;
+	padding: 0px;
+	}
+
+.calendar_month_day_selected
+	{
+	background-color: #4080FF;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	color: black;
+	height: 16%;
+	padding: 0px;
+	}
+
+.calendar_month_day_text
+	{
+	height: 80%;
+	left: 10%;
+	position: absolute;
+	top: 10%;
+	width: 80%;
+	}
+
+.calendar_month_day_today
+	{
+	background-color: #80C0FF;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	color: black;
+	height: 16%;
+	padding: 0px;
+	}
+
+.calendar_month_event_bar
+	{
+	background-color: #E0E0E0;
+	right: 10%;
+	height: 80%;
+	position: absolute;
+	top: 10%;
+	width: 20%;
+	}
+
+.calendar_months_month
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	}
+
+.calendar_months_spacer
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	width: 28px;
+	}
+
+.calendar_title
+	{
+	border-collapse: collapse;
+	height: 24px;
+	width: 100%;
+	}
+
+.calendar_title_agenda
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	color: white;
+	padding: 0px;
+	text-align: center;
+	}
+
+.calendar_title_day_active
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 0px;
+	color: white;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	}
+
+.calendar_title_day_inactive
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 0px;
+	color: #E0E0E0;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	}
+
+.calendar_title_month
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 0px;
+	color: white;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	}
+
+.calendar_title_next
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 1px 1px 0px;
+	padding: 0px;
+	text-align: center;
+	width: 28px;
+	}
+
+.calendar_title_previous
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 1px;
+	padding: 0px;
+	text-align: center;
+	width: 28px;
+	}
+
+.calendar_title_week
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 0px;
+	color: white;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	}
+
+.calendar_title_year
+	{
+	background-color: #4080C0;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0px 1px 0px;
+	color: white;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	}
+
+.calendar_weekdays
+	{
+	border-collapse: inherit; /* !!! was "default" */
+	height: 24px;
+	width: 100%;
+	}
+
+.calendar_weekdays_spacer
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	width: 28px;
+	}
+
+.calendar_weekdays_selected
+	{
+	background-color: #4080FF;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: white;
+	padding: 0px;
+	}
+
+.calendar_weekdays_today
+	{
+	background-color: #80C0FF;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: black;
+	padding: 0px;
+	}
+
+.calendar_weekdays_weekday
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: black;
+	padding: 0px;
+	}
+
+.calendar_weekdays_weekend
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: #808080;
+	padding: 0px;
+	}
+
+.calendar_year
+	{
+	border-collapse: collapse;
+	height: 100%;
+	table-layout: fixed;
+	width: 100%;
+	}
+
+.calendar_year_day
+	{
+	background-color: #E0E0E0;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	padding: 0px;
+	text-align: center;
+	width: 28px;
+	}
+
+.calendar_year_weekday
+	{
+	background-color: white;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: black;
+	padding: 0px;
+	}
+
+.calendar_year_weekend
+	{
+	background-color: white;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px 1px 1px 1px;
+	color: #808080;
+	padding: 0px;
+	}
+

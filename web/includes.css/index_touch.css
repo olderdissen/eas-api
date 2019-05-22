@@ -1,0 +1,19 @@
+.touchscroll_inner
+	{
+	height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	position: absolute;
+	border-top: solid 1px;
+	border-bottom: solid 1px;
+	border-left: solid 1px;
+	}
+
+.touchscroll_outer
+	{
+	height: 100%;
+	width: 100%;
+	position: relative;
+	}
+

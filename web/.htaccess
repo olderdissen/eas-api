@@ -1,0 +1,6 @@
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE application/json
+	AddOutputFilterByType DEFLATE image/png
+	AddOutputFilterByType DEFLATE text/event-stream
+	AddOutputFilterByType DEFLATE text/javascript
+</IfModule>

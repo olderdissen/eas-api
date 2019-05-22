@@ -1,0 +1,42 @@
+.suggest_link_a
+	{
+	background-color: #FFFFFF;
+	color: #000000;
+	cursor: default;
+	padding: 2px;
+	}
+
+.suggest_link_b
+	{
+	background-color: #4080C0;
+	color: #FFFFFF;
+	cursor: default;
+	padding: 2px;
+	}
+
+.suggest_found_a
+	{
+	color: #FF0000;
+	}
+
+.suggest_found_b
+	{
+	color: #C0C0C0;
+	}
+
+.suggest_dropdown
+	{
+	background-color: #FFFFFF;
+	border: 1px solid #000000;
+	border-top-width: 0px;
+	color: #000000;
+	display: none;
+	height: 120px;
+	text-align: left;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	position: absolute;
+	white-space: nowrap;
+	z-index: 2;
+	}
+
