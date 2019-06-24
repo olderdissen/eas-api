@@ -7,9 +7,10 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 
 	$response->x_open("ApplicationData");
 
-		$codepage_table = array();
-
-		$codepage_table["Tasks"] = active_sync_get_default_tasks();
+		$codepage_table = array
+			(
+			"Tasks" => active_sync_get_default_tasks()
+			);
 
 		foreach($codepage_table as $codepage => $null)
 			{
@@ -33,10 +34,8 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 				# The value of the * element is a string data type represented as a
 				# Compact DateTime ([MS-ASDTYPE] section 2.7.2).
 
-				if(in_array($token, array("DateCompleted", "DueDate", "OrdinalDate", "ReminderTime", "Start", "StartDate", "UtcDueDate", "UtcStartDate")) === true)
-					{
+#				if(in_array($token, array("DateCompleted", "DueDate", "OrdinalDate", "ReminderTime", "Start", "StartDate", "UtcDueDate", "UtcStartDate")) === true)
 #					$data[$codepage][$token] = date("Y-m-d\TH:i:s\Z", strtotime($data[$codepage][$token]));
-					}
 
 				$response->x_open($token);
 					$response->x_print($data[$codepage][$token]);

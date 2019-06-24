@@ -41,9 +41,7 @@ if($Request["Cmd"] == "Device")
 				$data = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $DeviceId . ".sync");
 
 				foreach(active_sync_get_default_info() as $key => $value)
-					{
-					$data["DeviceInformation"][$key] = (isset($data["DeviceInformation"][$key]) === false ? $value : $data["DeviceInformation"][$key]);
-					}
+					$data["DeviceInformation"][$key] = (isset($data["DeviceInformation"][$key]) ? $data["DeviceInformation"][$key] : $value);
 
 				print("<tr class=\"list_small " . ($count % 2 ? "list_even" : "list_odd") . "\">");
 					print("<td>");
@@ -59,9 +57,7 @@ if($Request["Cmd"] == "Device")
 						print("[");
 
 							if(count($data["DeviceInformation"]) == 0)
-								{
 								print("Details");
-								}
 
 							if(count($data["DeviceInformation"]) != 0)
 								{
@@ -96,9 +92,7 @@ if($Request["Cmd"] == "Device")
 	print("<script type=\"text/javascript\">");
 
 		foreach($devices as $device_id)
-			{
 			print("popup_device_state('" . $device_id . "', 2);");
-			}
 
 	print("</script>");
 	}
@@ -120,9 +114,7 @@ if($Request["Cmd"] == "DeviceInfo")
 	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DeviceId"] . ".sync");
 
 	foreach(active_sync_get_default_info() as $key => $value)
-		{
-		$settings["DeviceInformation"][$key] = (isset($settings["DeviceInformation"][$key]) === false ? $value : $settings["DeviceInformation"][$key]);
-		}
+		$settings["DeviceInformation"][$key] = (isset($settings["DeviceInformation"][$key]) ? $settings["DeviceInformation"][$key] : $value);
 
 	$data = json_encode($data["DeviceInformation"]);
 

@@ -3,10 +3,11 @@ function active_sync_handle_sync_save_contacts($xml, $user, $collection_id, $ser
 	{
 	$data = array();
 
-	$codepage_table = array();
-
-	$codepage_table["Contacts"] = active_sync_get_default_contacts();
-	$codepage_table["Contacts2"] = active_sync_get_default_contacts2();
+	$codepage_table = array
+		(
+		"Contacts" => active_sync_get_default_contacts(),
+		"Contacts2" => active_sync_get_default_contacts2()
+		);
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
@@ -17,7 +18,7 @@ function active_sync_handle_sync_save_contacts($xml, $user, $collection_id, $ser
 			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 			}
 
-	if(isset($xml->ApplicationData->Body) === true)
+	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
 			{
 			$b = array();

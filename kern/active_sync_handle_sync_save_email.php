@@ -11,13 +11,13 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 		$data["AirSync"][$token] = strval($xml->$token);
 		}
 
-	$codepage_table = array();
-
-	$codepage_table["Email"] = active_sync_get_default_email();
-	$codepage_table["Email2"] = active_sync_get_default_email2();
+	$codepage_table = array
+		(
+		"Email" => active_sync_get_default_email(),
+		"Email2" => active_sync_get_default_email2()
+		);
 
 	foreach($codepage_table as $codepage => $token_table)
-		{
 		foreach($token_table as $token => $value)
 			{
 			if(isset($xml->ApplicationData->$token) === false)
@@ -25,24 +25,8 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 
 			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 			}
-		}
 
-#	$data["Email"]["Read"] = 1;
-
-	# fixme: some fields are part of attachment !!!
-
-	foreach(array("UmCallerID", "UmUserNotes") as $token)
-		{
-		if(isset($xml->ApplicationData->$token) === false)
-			continue;
-
-#		$data["Email2"][$token] = strval($xml->ApplicationData->$token);
-
-#		$data["Attachments"][]["Email2"][$token] = $data["Email2"][$token];
-		}
-
-	if(isset($xml->ApplicationData->Body) === true)
-		{
+	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
 			{
 			$b = array();
@@ -63,14 +47,27 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 
 			$data["Body"][] = $b;
 			}
-		}
 
 	if(isset($xml->ApplicationData->Categories))
 		if(count($xml->ApplicationData->Categories->Category) > 0)
 			foreach($xml->ApplicationData->Categories->Category as $category)
 				$data["Categories"][] = strval($category);
 
-	if(isset($xml->ApplicationData->Flag) === true)
+#	$data["Email"]["Read"] = 1;
+
+	# fixme: some fields are part of attachment !!!
+
+	foreach(array("UmCallerID", "UmUserNotes") as $token)
+		{
+		if(isset($xml->ApplicationData->$token) === false)
+			continue;
+
+#		$data["Email2"][$token] = strval($xml->ApplicationData->$token);
+
+#		$data["Attachments"][]["Email2"][$token] = $data["Email2"][$token];
+		}
+
+	if(isset($xml->ApplicationData->Flag))
 		{
 		$data["Flag"] = array();
 

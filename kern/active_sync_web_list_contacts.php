@@ -40,24 +40,16 @@ function active_sync_web_list_contacts($request)
 							print("<select id=\"search_category\" style=\"width: 150px;\"\">");
 
 								foreach(array("Alle" => "*", "Nicht zugewiesen" => "") as $key => $value)
-									{
-									print("<option value=\"" . $value . "\">");
-										print($key);
-									print("</option>");
-									}
+									printf("<option value=\"%s\">%s</option>", $key, $value);
 
 								$categories = active_sync_get_categories_by_collection_id($request["AuthUser"], $request["CollectionId"]);
 
 								foreach($categories as $category => $count)
 									{
 									if($category == "*")
-										{
 										continue;
-										}
 
-									print("<option value=\"". $category . "\">");
-										print($category);
-									print("</option>");
+									printf("<option value=\"%s\">%s</option>", $category, $category);
 									}
 							print("</select>");
 						print("</td>");
@@ -79,13 +71,7 @@ function active_sync_web_list_contacts($request)
 								$m = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 								for($i = 0; $i < strlen($m); $i = $i + 1)
-									{
-									print("<tr>");
-										print("<td class=\"span_link\" style=\"border: solid 1px; border: solid 1px; text-align: center;\" onclick=\"contact_scroll_to('LETTER_" . $m[$i] . "', 'touchscroll_div');\">");
-											print($m[$i]);
-										print("</td>");
-									print("</tr>");
-									}
+									printf("<tr><td class=\"span_link\" style=\"border: solid 1px; border: solid 1px; text-align: center;\" onclick=\"contact_scroll_to('LETTER_%s', 'touchscroll_div');\">%s</td></tr>", $m[$i], $m[$i]);
 							print("</table>");
 						print("</td>");
 						print("<td style=\"height: 100%;\">");

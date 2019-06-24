@@ -26,7 +26,8 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 	$response->x_open("ApplicationData");
 
-		$codepage_table = array(
+		$codepage_table = array
+			(
 			"Email" => active_sync_get_default_email(),
 			"Email2" => active_sync_get_default_email2(),
 			"AirSyncBase" => array("NativeBodyType" => 4)

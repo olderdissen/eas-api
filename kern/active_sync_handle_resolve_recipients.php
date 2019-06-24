@@ -20,7 +20,6 @@ function active_sync_handle_resolve_recipients($request)
 			$to = strval($to);
 
 			foreach($users["login"] as $user)
-				{
 				foreach(glob(DAT_DIR . "/" . $user["User"] . "/9009/*.data") as $file) # contact
 					{
 					$server_id = basename($file, ".data");
@@ -49,7 +48,6 @@ function active_sync_handle_resolve_recipients($request)
 						break(2); # foreach, while
 						}
 					}
-				}
 			}
 		}
 
@@ -223,31 +221,21 @@ function active_sync_handle_resolve_recipients($request)
 								$response->x_close("MiniCertificate");
 							$response->x_close("Certificates");
 							}
-						else
-							{
-							}
 
-						if(isset($xml->Options->Picture) === false)
-							{
-							}
-						elseif(isset($xml->Options->Picture->MaxPictures) === false)
-							{
-							}
-						elseif(isset($xml->Options->Picture->MaxSize) === false)
-							{
-							}
-						else
-							{
-#							$response->x_open("Picture");
-#								$response->x_open("Status");
-#									$response->x_print(1);
-#								$response->x_close("Status");
+						if(isset($xml->Options->Picture))
+							if(isset($xml->Options->Picture->MaxPictures))
+								if(isset($xml->Options->Picture->MaxSize))
+									{
+#									$response->x_open("Picture");
+#										$response->x_open("Status");
+#											$response->x_print(1);
+#										$response->x_close("Status");
 #
-#								$response->x_open("Data");
-#									$response->x_print();
-#								$response->x_close("Data");
-#							$response->x_close("Picture");
-							}
+#										$response->x_open("Data");
+#											$response->x_print();
+#										$response->x_close("Data");
+#									$response->x_close("Picture");
+									}
 
 					$response->x_close("Recipient");
 					}

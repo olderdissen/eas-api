@@ -153,9 +153,7 @@ function handle_link(settings)
 		expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
 
 		for(var field in fields)
-			{
 			document.cookie = fields[field] + "=_" + state[fields[field]] + "; expires=" + expires.toUTCString();
-			}
 		}
 
 	if(state.init == 0)
@@ -171,9 +169,7 @@ function handle_link(settings)
 				var kv = cookies[cookie].split("=");
 
 				if(fields[field] != kv[0])
-					{
 					continue;
-					}
 
 				state[fields[field]] = kv[1].substr(1);
 				}
@@ -207,9 +203,7 @@ function handle_link(settings)
 		var onload = function(data)
 			{
 			if(data == 1)
-				{
 				o.remove(o.selectedIndex);
-				}
 			}
 
 		ajax({ type : "GET", url : "index.php?Cmd=Upload&CollectionId=" + state.collection_id + "&LongId=0&ItemId=" + escape(o[o.selectedIndex].text), success : onload });
@@ -298,9 +292,7 @@ function handle_link(settings)
 			time_e.setTime(calendar.time * 1000);
 
 			while(time_s.getDay() != 1)
-				{
 				time_s.setDate(time_s.getDate() - 1);
-				}
 
 			time_e.setDate(time_s.getDate() + 7); // + 1 week
 
@@ -348,14 +340,10 @@ function handle_link(settings)
 	if(state.cmd == "CalendarResize")
 		{
 		if(state.collection_id != 9008)
-			{
 			return;
-			}
 
 		if(calendar.timeout != null)
-			{
 			clearTimeout(calendar.timeout);
-			}
 
 		handle_link({ cmd : "CalendarUpdate" });
 		}
@@ -376,9 +364,7 @@ function handle_link(settings)
 	if(state.cmd == "CalendarScrollPositionSave")
 		{
 		if(document.getElementById("calendar_scroll") != null)
-			{
 			calendar.scroll = document.getElementById("tbl_scroll").scrollTop;
-			}
 		}
 
 	if(state.cmd == "CalendarSelect")
@@ -386,9 +372,7 @@ function handle_link(settings)
 		var o = document.getElementById("view");
 
 		if(o != null)
-			{
 			handle_link({ cmd : "CalendarShow", view_id : o.value });
-			}
 		}
 
 	if(state.cmd == "CalendarShow")
@@ -400,9 +384,7 @@ function handle_link(settings)
 			for(i = 0; i < o.length; i = i + 1)
 				{
 				if(o[i].value != state.view_id)
-					{
 					continue;
-					}
 
 				o.selectedIndex = i;
 				}
@@ -577,9 +559,7 @@ function handle_link(settings)
 		var ids = form_data.split("&");
 
 		for(id in ids)
-			{
 			handle_link({ cmd : "DeleteHelper", server_id : ids[id].split("=")[1] });
-			}
 
 		handle_link({ cmd : "PopupRemove" });
 		handle_link({ cmd : "List" });
@@ -692,9 +672,7 @@ function handle_link(settings)
 			}
 
 		if(state.long_id != "")
-			{
 			ajax({ type : "GET", url : "index.php?Cmd=Flag&CollectionId=" + state.collection_id + "&ServerId=" + state.server_id + "&LongId=" + state.long_id, success : onload });
-			}
 		}
 
 	if(state.cmd == "Folder")
@@ -761,13 +739,9 @@ function handle_link(settings)
 	if(state.cmd == "IM")
 		{
 		if(state.item_id == "")
-			{
 			alert("this element should be hidden");
-			}
 		else
-			{
 			location.href = state.item_id;
-			}
 		}
 
 	if(state.cmd == "List")
@@ -897,9 +871,7 @@ function handle_link(settings)
 			}
 
 		if(oof_check() == true)
-			{
 			ajax({ type : "POST", url : "index.php?Cmd=OofSave", data : form_data, success : onload });
-			}
 		}
 
 	if(state.cmd == "PictureDelete")
@@ -1010,9 +982,7 @@ function handle_link(settings)
 		o.onmousedown = function(e)
 			{
 			if(e.target.id == "blocking_layer")
-				{
 				handle_link({ cmd : "PopupRemove" });
-				}
 
 			//alert(e.pageX);
 			}
@@ -1278,9 +1248,7 @@ function handle_link(settings)
 		}
 
 	if(state.cmd == "Reply")
-		{
 		handle_link({ cmd : "Edit", long_id : "R" });
-		}
 
 	if(state.cmd == "Reset")
 		{
@@ -1330,9 +1298,7 @@ function handle_link(settings)
 		}
 
 	if(state.cmd == "ResetForm")
-		{
 		document.forms[0].reset();
-		}
 
 	if(state.cmd == "ResetPicture")
 		{
@@ -1376,9 +1342,7 @@ function handle_link(settings)
 					var o = document.getElementById(fields[field]);
 
 					for(i = 0; i < o.options.length; i = i + 1)
-						{
 						o.options[i].selected = true;
-						}
 					}
 
 				break;
@@ -1392,9 +1356,7 @@ function handle_link(settings)
 		var onload = function(data)
 			{
 			if(data != 1)
-				{
 				return;
-				}
 
 			handle_link({ cmd : "List" });
 			}
@@ -1416,9 +1378,7 @@ function handle_link(settings)
 		// as a side effect, this is triggered before submenu is triggered
 
 		if(state.item_id != "")
-			{
 			handle_link({ cmd : "Edit", collection_id : "9002", server_id : "", item_id : "inline:" + state.collection_id + ":" + state.server_id + ":" + state.item_id });
-			}
 		}
 
 	if(state.cmd == "SendVCard")
@@ -1446,9 +1406,7 @@ function handle_link(settings)
 			o.setSelectionRange(state.position, state.position);
 			}
 		else
-			{
 			o.focus();
-			}
 		}
 
 	if(state.cmd == "Settings")

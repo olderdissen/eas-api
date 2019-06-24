@@ -3,10 +3,6 @@ if($Request["Cmd"] == "Search")
 	{
 	if(active_sync_get_class_by_collection_id($Request["AuthUser"], $Request["CollectionId"]) == "Calendar")
 		{
-		################################################################################
-		# declare wich fields to search for
-		################################################################################
-
 		switch($Request["Field"])
 			{
 			case("Body:Data"):
@@ -19,33 +15,15 @@ if($Request["Cmd"] == "Search")
 				break;
 			}
 
-		################################################################################
-		# init return
-		################################################################################
-
 		$retval = array();
-
-		################################################################################
-		# search for data
-		################################################################################
 
 		if(strlen($Request["Search"]) > 0)
 			{
 			foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
 				{
-				################################################################################
-				# get ServerId from filename
-				################################################################################
-
 				$server_id = basename($file, ".data");
 
-				################################################################################
-				# get data
-				################################################################################
-
 				$data = active_sync_get_settings_data($Request["AuthUser"], $Request["CollectionId"], $server_id);
-
-				################################################################################
 
 				foreach($Request["Field"] as $key)
 					{
@@ -53,21 +31,15 @@ if($Request["Cmd"] == "Search")
 						{
 						case("Data"):
 							if(isset($data["Body"][0][$key]) === false)
-								{
 								continue;
-								}
 
 							$item = $data["Body"][0][$key];
 
 							if(substr(strtolower($item), 0, strlen($Request["Search"])) != strtolower($Request["Search"]))
-								{
 								continue;
-								}
 
 							if(strlen($Request["Search"]) == strlen($item))
-								{
 								continue;
-								}
 
 							$temp = array();
 
@@ -112,8 +84,6 @@ if($Request["Cmd"] == "Search")
 				}
 			}
 
-		################################################################################
-
 		if(count($retval) > 1)
 			sort($retval);
 
@@ -122,10 +92,6 @@ if($Request["Cmd"] == "Search")
 		print(json_encode($retval));
 		}
 	}
-
-################################################################################
-# ...
-################################################################################
 
 if($Request["Cmd"] == "Show")
 	{
@@ -146,8 +112,6 @@ if($Request["Cmd"] == "Show")
 			}
 		else
 			{
-			################################################################################
-
 			print("<p style=\"font-weight: bold;\">");
 				print(isset($data["Calendar"]["Subject"]) ? $data["Calendar"]["Subject"] : "(Kein Titel)");
 			print("</p>");
@@ -241,12 +205,14 @@ if($Request["Cmd"] == "Show")
 
 			if(isset($data["Attendees"]) === true)
 				{
-				$list = array();
-				$list[0] = array(); # Response unknown
-				$list[2] = array(); # Tentative
-				$list[3] = array(); # Accept
-				$list[4] = array(); # Declined
-				$list[5] = array(); # Not responded
+				$list = array
+					(
+					0 => array(), # Response unknown
+					2 => array(), # Tentative
+					3 => array(), # Accept
+					4 => array(), # Declined
+					5 => array()  # Not responded
+					);
 
 				print("<hr>");
 

@@ -1,29 +1,12 @@
 <?
 if($Request["Cmd"] == "Policy")
 	{
-	################################################################################
-	# ...
-	################################################################################
-
 	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
 	foreach(active_sync_get_default_policy() as $token => $value)
-		{
-		$settings["Policy"]["Data"][$token] = (isset($settings["Policy"]["Data"][$token]) === false ? $value : $settings["Policy"]["Data"][$token]);
-		}
-
-	################################################################################
-	# ...
-	################################################################################
+		$settings["Policy"]["Data"][$token] = (isset($settings["Policy"]["Data"][$token]) ? $settings["Policy"]["Data"][$token] : $value);
 
 	$restrictions = active_sync_get_table_policy();
-
-	################################################################################
-	# todo:
-	# two lists
-	# one with possible settings
-	# second with settings done so far
-	# if setting is done, remove it from first list
 
 	print("<form>");
 		print("<input type=\"hidden\" name=\"Cmd\" value=\"PolicySave\">");
@@ -40,7 +23,7 @@ if($Request["Cmd"] == "Policy")
 						foreach($restrictions as $policy_name => $policy_data)
 							{
 							print("<span style=\"display: none;\" id=\"" . $policy_name . "\">");
-#									print("<p>" . $policy_name . "</p>");
+#								print("<p>" . $policy_name . "</p>");
 
 								switch($policy_data["Type"])
 									{
@@ -135,9 +118,10 @@ if($Request["Cmd"] == "PolicyDelete")
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
-	$settings["Policy"] = array();
-
-	$settings["Policy"]["PolicyKey"] = time();
+	$settings["Policy"] = array
+		(
+		"PolicyKey" => time()
+		);
 
 	active_sync_put_settings(DAT_DIR . "/login.data", $settings);
 
@@ -148,9 +132,10 @@ if($Request["Cmd"] == "PolicySave")
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
-	$settings["Policy"] = array();
-
-	$settings["Policy"]["PolicyKey"] = time();
+	$settings["Policy"] = array
+		(
+		"PolicyKey" => time()
+		);
 
 	foreach(active_sync_get_default_policy() as $restriction_key => $restriction_data)
 		{

@@ -1,5 +1,5 @@
 <?
-$timestamp_o = 1556560746;
+$timestamp_o = 1561414326;
 $timestamp_n = $timestamp_o;
 
 chdir(__DIR__);
@@ -15,7 +15,7 @@ $settings = array
 	"user-id" => "",
 	"collection-id" => "",
 	"server-id" => "",
-	"app-name" => "",
+	"app-name" => ""
 	);
 
 foreach($argv as $parameter)
@@ -43,24 +43,17 @@ if($settings["mode"] == "show")
 		foreach(glob(DAT_DIR . "/*.sync") as $file)
 			print(basename($file, ".sync") . "\n");
 	elseif($settings["collection-id"] == "")
-		{
 		foreach(glob(DAT_DIR . "/" . $settings["user-id"] . "/*") as $file)
 			print(basename($file, "") . "\n");
-		}
+	elseif($settings["server-id"] == "index")
+		foreach(glob(DAT_DIR . "/" . $settings["user-id"] . "/" . $settings["collection-id"] . "/*.data") as $file)
+			print(basename($file, ".data") . "\n");
 	else
-		{
-		if($settings["server-id"] == "index")
-			foreach(glob(DAT_DIR . "/" . $settings["user-id"] . "/" . $settings["collection-id"] . "/*.data") as $file)
-				print(basename($file, ".data") . "\n");
-		else
-			print(json_encode(active_sync_get_settings(DAT_DIR . "/" . $settings["user-id"] . "/" . $settings["collection-id"] . "/" . $settings["server-id"] . ".data"), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-		}
+		print(json_encode(active_sync_get_settings(DAT_DIR . "/" . $settings["user-id"] . "/" . $settings["collection-id"] . "/" . $settings["server-id"] . ".data"), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 if($settings["mode"] == "update-maildir")
-	{
 	active_sync_maildir_sync();
-	}
 
 if($settings["mode"] == "update-version")
 	{
@@ -90,7 +83,5 @@ if($settings["mode"] == "update-version")
 	}
 
 if($settings["mode"] == "help")
-	{
 	printf("Usage: %s [ <option> ]\n\n\t--update-maildir\tUpdates Maildir.\n\t--update-version\tUpdates Version.\n\n\t-?, --help\t\tPrint a help message and exit.\n", $settings["app-name"]);
-	}
 ?>

@@ -36,7 +36,7 @@ function active_sync_handle_ping($request)
 
 		$x = $xml->addChild("HeartbeatInterval", $settings["HeartbeatInterval"]);
 		}
-
+	else
 		{
 		unset($xml->Folders);
 

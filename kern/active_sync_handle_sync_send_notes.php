@@ -7,9 +7,10 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 
 	$response->x_open("ApplicationData");
 
-		$codepage_table = array();
-
-		$codepage_table["Notes"] = active_sync_get_default_notes();
+		$codepage_table = array
+			(
+			"Notes" => active_sync_get_default_notes()
+			);
 
 		foreach($codepage_table as $codepage => $null)
 			{

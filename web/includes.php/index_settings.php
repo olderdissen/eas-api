@@ -3,8 +3,8 @@ if($Request["Cmd"] == "Settings")
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
-	foreach(active_sync_get_default_settings() as $key => $val)
-		$settings["Settings"][$key] = (isset($settings["Settings"][$key]) === false ? $val : $settings["Settings"][$key]);
+	foreach(active_sync_get_default_settings() as $key => $value)
+		$settings["Settings"][$key] = (isset($settings["Settings"][$key]) ? $settings["Settings"][$key] : $value);
 
 	print("<form onsubmit=\"return false;\">");
 		print("<input type=\"hidden\" name=\"Cmd\" value=\"SettingsSave\">");
@@ -195,7 +195,7 @@ if($Request["Cmd"] == "SettingsSave")
 	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach(active_sync_get_default_settings() as $key => $val)
-		$settings["Settings"][$key] = (isset($_POST[$key]) === false ? "" : $_POST[$key]);
+		$settings["Settings"][$key] = (isset($_POST[$key]) ? $_POST[$key] : "");
 
 	$settings["Settings"]["PhoneOnly"] = ($settings["Settings"]["PhoneOnly"] ? 1 : 0);
 

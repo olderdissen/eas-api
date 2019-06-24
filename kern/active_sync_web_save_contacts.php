@@ -52,11 +52,6 @@ function active_sync_web_save_contacts($request)
 		$data[$token] = $_POST[$token]; # !!! ARRAY
 		}
 
-	if(isset($data["Contacts"]["JobTitle"]))
-		if($data["Contacts"]["JobTitle"] != "")
-			if(isset($data["Contacts"]["CompanyName"]))
-				$data["Contacts"]["CompanyName"] = "";
-
 	foreach(array("Anniversary", "Birthday") as $token)
 		{
 		if(isset($data["Contacts"][$token]) === false)

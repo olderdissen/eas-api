@@ -3,13 +3,9 @@ function handle_files_x()
 	var xa_onchange = function(e)
 		{
 		if(xa.files[0].size > 10 * 1024 * 1024)
-			{
 			alert("file too big");
-			}
 		else
-			{
 			xb.readAsDataURL(xa.files[0]);
-			}
 		}
 
 	////////////////////////////////////////////////////////////////////////

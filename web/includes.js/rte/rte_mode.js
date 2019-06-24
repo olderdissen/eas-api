@@ -55,8 +55,6 @@ function rte_mode(id)
 		}
 
 	if(id == 4)
-		{
 		history.back();
-		}
 	}
 

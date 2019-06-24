@@ -22,20 +22,21 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 			}
 		}
 
+	$codepage_table = array
+		(
+		"AirSyncBase" => array("NativeBodyType" => 0),
+		"Calendar" => active_sync_get_default_calendar(),
+		"Contacts" => active_sync_get_default_contacts(),
+		"Contacts2" => active_sync_get_default_contacts2(),
+		"Email" => active_sync_get_default_email(),
+		"Email2" => active_sync_get_default_email2(),
+		"Notes" => active_sync_get_default_notes(),
+		"Tasks" => active_sync_get_default_tasks()
+		);
+
 	$response->x_switch("AirSync");
 
 	$response->x_open("ApplicationData");
-
-		$codepage_table = array();
-
-		$codepage_table["AirSyncBase"] = array("NativeBodyType" => 0);
-		$codepage_table["Calendar"] = active_sync_get_default_calendar();
-		$codepage_table["Contacts"] = active_sync_get_default_contacts();
-		$codepage_table["Contacts2"] = active_sync_get_default_contacts2();
-		$codepage_table["Email"] = active_sync_get_default_email();
-		$codepage_table["Email2"] = active_sync_get_default_email2();
-		$codepage_table["Notes"] = active_sync_get_default_notes();
-		$codepage_table["Tasks"] = active_sync_get_default_tasks();
 
 		foreach($codepage_table as $codepage => $null)
 			{
@@ -184,121 +185,6 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 					}
 
 			$response->x_close("Children");
-			}
-
-		if(isset($data["Exceptions"]) === true)
-			{
-			$response->x_switch($marker);
-
-			$response->x_open("Exceptions");
-
-				foreach($data["Exceptions"] as $exception)
-					{
-					$response->x_switch("Calendar");
-
-					$response->x_open("Exception");
-
-						if(isset($exception["Calendar"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							foreach(active_sync_get_default_exception() as $token => $null)
-								{
-								if(isset($exception["Calendar"][$token]) === false)
-									continue;
-
-								if(strlen($exception["Calendar"][$token]) == 0)
-									{
-									$response->x_open($token, false);
-
-									continue;
-									}
-
-								$response->x_open($token);
-									$response->x_print($exception["Calendar"][$token]);
-								$response->x_close($token);
-								}
-							}
-
-						if(isset($exception["Attendees"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							$response->x_open("Attendees");
-
-								foreach($exception["Attendees"] as $attendee)
-									{
-									$response->x_open("Attendee");
-
-										foreach(active_sync_get_default_attendee() as $token => $null)
-											{
-											if(isset($attendee[$token]) === false)
-												continue;
-
-											if(strlen($attendee[$token]) == 0)
-												{
-												$response->x_open($token, false);
-
-												continue;
-												}
-
-											$response->x_open($token);
-												$response->x_print($attendee[$token]);
-											$response->x_close($token);
-											}
-
-									$response->x_close("Attendee");
-									}
-
-							$response->x_close("Attendees");
-							}
-
-						if(isset($exception["Categories"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							$response->x_open("Categories");
-
-								foreach($exception["Categories"] as $value)
-									{
-									$response->x_open("Category");
-										$response->x_print($value);
-									$response->x_close("Category");
-									}
-
-							$response->x_close("Categories");
-							}
-
-						if(isset($exception["Body"][1]) === true)
-							{
-							$response->x_switch("AirSyncBase");
-
-							$response->x_open("Body");
-
-								foreach(active_sync_get_default_body() as $token => $null)
-									{
-									if(isset($exception["Body"][1][$token]) === false)
-										continue;
-
-									if(strlen($exception["Body"][1][$token]) == 0)
-										{
-										$response->x_open($token, false);
-
-										continue;
-										}
-
-									$response->x_open($token);
-										$response->x_print($exception["Body"][1][$token]);
-									$response->x_close($token);
-									}
-
-							$response->x_close("Body");
-							}
-
-					$response->x_close("Exception");
-					}
-
-			$response->x_close("Exceptions");
 			}
 
 		if(isset($data["Flag"]))
@@ -488,7 +374,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 							$response->x_open("Body");
 
-								if(isset($preference["Preview"]) === true)
+								if(isset($preference["Preview"]))
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
 										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
@@ -502,31 +388,16 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 										$response->x_close("Preview");
 										}
 
-								if(isset($preference->TruncationSize) === false)
-									{
-									}
-								elseif(intval($preference->TruncationSize) == 0)
-									{
-									}
-								elseif(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
-									{
-									$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
+								if(isset($preference->TruncationSize))
+									if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
+										if(intval($preference->TruncationSize) < $data["Body"][$random_body_id]["EstimatedDataSize"])
+											{
+											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
-									$response->x_open("Truncated");
-										$response->x_print(1);
-									$response->x_close("Truncated");
-									}
-								elseif(intval($preference-Truncation-Size) > $data["Body"][$random_body_id]["EstimatedDataSize"])
-									{
-									}
-								elseif(intval($preference->TruncationSize) < $data["Body"][$random_body_id]["EstimatedDataSize"])
-									{
-									$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
-
-									$response->x_open("Truncated");
-										$response->x_print(1);
-									$response->x_close("Truncated");
-									}
+											$response->x_open("Truncated");
+												$response->x_print(1);
+											$response->x_close("Truncated");
+											}
 
 								foreach($data["Body"][$random_body_id] as $token => $value)
 									{

@@ -84,12 +84,7 @@ function html_folders_menu($folders, $level = 0, $parent_id = 0)
 
 			$special = active_sync_get_is_special_folder($folder_data["Type"]);
 
-			if($special == 1)
-				$name = $folder_data["DisplayName"];
-			else
-				$name = $folder_data["DisplayName"];
-
-			$text = "<span class=\"span_link\" onclick=\"handle_link({ cmd : 'List', collection_id : '" . $folder_data["ServerId"] . "' });\">" . $name . "</span>";
+			$text = "<span class=\"span_link\" onclick=\"handle_link({ cmd : 'List', collection_id : '" . $folder_data["ServerId"] . "' });\">" . $folder_data["DisplayName"] . "</span>";
 
 			if($class == "Email")
 				{

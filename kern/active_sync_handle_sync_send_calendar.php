@@ -7,7 +7,8 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 
 	$response->x_open("ApplicationData");
 
-		$codepage_table = array(
+		$codepage_table = array
+			(
 			"Calendar" => active_sync_get_default_calendar()
 			);
 
@@ -70,124 +71,6 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 					}
 
 			$response->x_close("Attendees");
-			}
-
-		if(isset($data["Exceptions"]) === true)
-			{
-			$response->x_switch("Calendar");
-
-			$response->x_open("Exceptions");
-
-				foreach($data["Exceptions"] as $exception)
-					{
-					$response->x_switch("Calendar");
-
-					$response->x_open("Exception");
-
-						if(isset($exception["Calendar"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							foreach(active_sync_get_default_exception() as $token => $value)
-								{
-								if(isset($exception["Calendar"][$token]) === false)
-									continue;
-
-								if(strlen($exception["Calendar"][$token]) == 0)
-									{
-									$response->x_open($token, false);
-
-									continue;
-									}
-
-								$response->x_open($token);
-									$response->x_print($exception["Calendar"][$token]);
-								$response->x_close($token);
-								}
-							}
-
-						if(isset($exception["Attendees"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							$response->x_open("Attendees");
-
-								foreach($exception["Attendees"] as $attendee)
-									{
-									$response->x_open("Attendee");
-
-										foreach(active_sync_get_default_attendee() as $token => $value)
-											{
-											if(isset($attendee[$token]) === false)
-												continue;
-
-											if(strlen($attendee[$token]) == 0)
-												{
-												$response->x_open($token, false);
-
-												continue;
-												}
-
-											$response->x_open($token);
-												$response->x_print($attendee[$token]);
-											$response->x_close($token);
-											}
-
-									$response->x_close("Attendee");
-									}
-
-							$response->x_close("Attendees");
-							}
-
-						if(isset($exception["Categories"]) === true)
-							{
-							$response->x_switch("Calendar");
-
-							$response->x_open("Categories");
-
-								foreach($exception["Categories"] as $value)
-									{
-									$response->x_open("Category");
-										$response->x_print($value);
-									$response->x_close("Category");
-									}
-
-							$response->x_close("Categories");
-							}
-
-						if(isset($exception["Body"]) === true)
-							{
-							foreach($exception["Body"] as $body)
-								{
-								$response->x_switch("AirSyncBase");
-
-								$response->x_open("Body");
-
-									foreach(active_sync_get_default_body() as $token => $value)
-										{
-										if(isset($body[$token]) === false)
-											continue;
-
-										if(strlen($body[$token]) == 0)
-											{
-											$response->x_open($token, false);
-
-											continue;
-											}
-
-										$response->x_open($token);
-											$response->x_print($body[$token]);
-										$response->x_close($token);
-										}
-
-								$response->x_close("Body");
-								}
-							}
-
-					$response->x_close("Exception");
-					}
-
-			$response->x_close("Exceptions");
 			}
 
 		if(isset($data["Recurrence"]) === true)

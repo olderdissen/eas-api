@@ -410,12 +410,7 @@ if($Request["Cmd"] == "UserUpdate")
 				continue;
 
 			foreach(active_sync_get_default_login() as $key => $value)
-				{
-				if(isset($_POST[$key]) === false)
-					$settings["login"][$user_id][$key] = $value;
-				else
-					$settings["login"][$user_id][$key] = $_POST[$key];
-				}
+				$settings["login"][$user_id][$key] = (isset($_POST[$key]) ? $_POST[$key] : $value);
 
 			active_sync_put_settings(DAT_DIR . "/login.data", $settings);
 

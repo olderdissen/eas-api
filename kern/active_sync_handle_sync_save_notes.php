@@ -3,15 +3,21 @@ function active_sync_handle_sync_save_notes($xml, $user, $collection_id, $server
 	{
 	$data = array();
 
-	foreach(active_sync_get_default_notes() as $token => $value)
-		{
-		if(isset($xml->ApplicationData->$token) === false)
-			continue;
+	$codepage_table = array
+		(
+		"Notes" => active_sync_get_default_notes()
+		);
 
-		$data["Notes"][$token] = strval($xml->ApplicationData->$token);
-		}
+	foreach($codepage_table as $codepage => $null)
+		foreach($codepage_table[$codepage] as $token => $value)
+			{
+			if(isset($xml->ApplicationData->$token) === false)
+				continue;
 
-	if(isset($xml->ApplicationData->Body) === true)
+			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
+			}
+
+	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
 			{
 			$b = array();

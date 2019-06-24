@@ -5,7 +5,7 @@ function active_sync_get_version($type = 0)
 	$major		= 0;
 	$minor		= 8;
 	$revision	= 8;
-	$build		= 17975;
+	$build		= 18017;
 	$extension	= "";
 	$description	= "";
 

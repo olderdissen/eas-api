@@ -245,9 +245,7 @@ Html2Xhtml.prototype.parse = function()
 					xhtml = xhtml + ' ' + attrname;
 
 					if(Html2Xhtml.isEmptyAttr[attrname])
-						{
 						xhtml = xhtml + '="' + attrname + '"';
-						}
 
 					unget = true;
 
@@ -436,13 +434,9 @@ Html2Xhtml.prototype.parse = function()
 					}
 
 				if(tagname == 'textarea')
-					{
 					xhtml = xhtml + Html2Xhtml.escapeHTMLChar(c);
-					}
 				else
-					{
 					xhtml = xhtml + c;
-					}
 
 				break;
 			}
@@ -454,14 +448,10 @@ Html2Xhtml.prototype.parse = function()
 Html2Xhtml.escapeQuot = function(str, quot)
 	{
 	if(!quot)
-		{
 		quot = '"';
-		}
 
 	if(quot == '"')
-		{
 		return(str.replace(/"/ig, '\\"'));
-		}
 
 	return(str.replace(/'/ig, "\\'"));
 	}
@@ -469,30 +459,20 @@ Html2Xhtml.escapeQuot = function(str, quot)
 Html2Xhtml.escapeHTMLChar = function(c)
 	{
 	if(c == '&')
-		{
 		return('&amp;');
-		}
 
 	if(c == '<')
-		{
 		return('&lt;');
-		}
 
 	if(c == '>')
-		{
 		return('&gt;');
-		}
 
 	var cc = c.charCodeAt();
 
 	if(Html2Xhtml.charEntities[cc])
-		{
 		return('&' + Html2Xhtml.charEntities[cc] + ';');
-		}
 	else
-		{
 		return(c)
-		}
 	}
 
 Html2Xhtml.isSpaceChar = { ' ' : 1, '\r' : 1, '\n' : 1, '\t' : 1 };

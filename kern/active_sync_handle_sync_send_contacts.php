@@ -7,10 +7,11 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 
 	$response->x_open("ApplicationData");
 
-		$codepage_table = array();
-
-		$codepage_table["Contacts"] = active_sync_get_default_contacts();
-		$codepage_table["Contacts2"] = active_sync_get_default_contacts2();
+		$codepage_table = array
+			(
+			"Contacts" => active_sync_get_default_contacts(),
+			"Contacts2" => active_sync_get_default_contacts2()
+			);
 
 		foreach($codepage_table as $codepage => $null)
 			{
@@ -133,16 +134,8 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 									}
 
 								if(isset($preference->TruncationSize))
-									if(intval($preference->TruncationSize) > 0)
-										if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
-											{
-											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
-
-											$response->x_open("Truncated");
-												$response->x_print(1);
-											$response->x_close("Truncated");
-											}
-										elseif(intval($preference->TruncationSize) < $data["Body"][$random_body_id]["EstimatedDataSize"])
+									if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
+										if(intval($preference->TruncationSize) < $data["Body"][$random_body_id]["EstimatedDataSize"])
 											{
 											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 

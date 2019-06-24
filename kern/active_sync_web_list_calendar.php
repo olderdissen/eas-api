@@ -16,11 +16,7 @@ function active_sync_web_list_calendar($request)
 							print("<select id=\"view\" onchange=\"handle_link({ cmd : 'CalendarSelect' });\">");
 
 							foreach(array("a" => "Agenda", "d" => "Tag", "w" => "Woche", "m" => "Monat", "y" => "Jahr") as $key => $value)
-								{
-								print("<option value=\"" . $key . "\">");
-									print($value);
-								print("</option>");
-								}
+								printf("<option value=\"%s\">%s</option>", $key, $value);
 							print("</select>");
 						print("</td>");
 						print("<td>");
