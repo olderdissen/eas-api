@@ -10310,15 +10310,21 @@ function active_sync_maildir_sync()
 
 				$reply_message = "";
 
-				if(isset($head_parsed["X-Auto-Response-Suppress"]["OOF"]) === false)
-					if(in_array($from_mail, array("", $to_mail)) === false)
-						if(in_array($from_user, array("mailer-daemon", "no-reply", "root", "wwwrun", "www-run", "wwww-data", "www-user", "mail", "noreply", "postfix")) === false)
-							if(($oof["OOF"]["AppliesToInternal"]["Enabled"] == 1) && ($from_host == $to_host))
-								$reply_message = $oof["OOF"]["OOF"]["AppliesToInternal"]["ReplyMessage"];
-							elseif(($oof["OOF"]["AppliesToExternalKnown"]["Enabled"] == 1) && ($from_host != $to_host) && (active_sync_get_is_known_mail($users["login"][$user_id]["User"], active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 9), $from_mail) == 1))
-								$reply_message = $oof["OOF"]["AppliesToExternalKnown"]["ReplyMessage"];
-							elseif(($oof["OOF"]["AppliesToExternalUnknown"]["Enabled"] == 1) && ($from_host != $to_host) && (active_sync_get_is_known_mail($users["login"][$user_id]["User"], active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 9), $from_mail) == 0))
-								$reply_message = $oof["OOF"]["AppliesToExternalUnknown"]["ReplyMessage"];
+				if(isset($head_parsed["X-Auto-Response-Suppress"]["OOF"]))
+					continue;
+
+				if(in_array($from_mail, array("", $to_mail)))
+					continue;
+
+				if(in_array($from_user, array("mailer-daemon", "no-reply", "root", "wwwrun", "www-run", "wwww-data", "www-user", "mail", "noreply", "postfix")))
+					continue;
+
+				if(($oof["OOF"]["AppliesToInternal"]["Enabled"] == 1) && ($from_host == $to_host))
+					$reply_message = $oof["OOF"]["OOF"]["AppliesToInternal"]["ReplyMessage"];
+				elseif(($oof["OOF"]["AppliesToExternalKnown"]["Enabled"] == 1) && ($from_host != $to_host) && (active_sync_get_is_known_mail($users["login"][$user_id]["User"], active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 9), $from_mail) == 1))
+					$reply_message = $oof["OOF"]["AppliesToExternalKnown"]["ReplyMessage"];
+				elseif(($oof["OOF"]["AppliesToExternalUnknown"]["Enabled"] == 1) && ($from_host != $to_host) && (active_sync_get_is_known_mail($users["login"][$user_id]["User"], active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 9), $from_mail) == 0))
+					$reply_message = $oof["OOF"]["AppliesToExternalUnknown"]["ReplyMessage"];
 
 				if(strlen($reply_message) == 0)
 					continue;
@@ -10332,18 +10338,19 @@ function active_sync_maildir_sync()
 				# 0x00000010	OOF		Suppress Out of Office (OOF) notifications.
 				# 0x00000020	AutoReply	Suppress auto-reply messages other than OOF notifications.
 
-				$new_mime_message = array();
-
-				$new_mime_message[] = "From: " . ($to_name ? "\"" . $to_name . "\" <" . $to_user . "@" . $to_host . ">" : $to_user . "@" . $to_host);
-				$new_mime_message[] = "To: " . ($from_name ? "\"" . $from_name . "\" <" . $from_user . "@" . $from_host . ">" : $from_user . "@" . $from_host);
-				$new_mime_message[] = "Subject: OOF: " . $data["Email"]["Subject"];
-				$new_mime_message[] = "Reply-To: " . $to_user . "@" . $to_host;
-				$new_mime_message[] = "Auto-Submitted: auto-generated";
-				$new_mime_message[] = "Message-ID: <" . active_sync_create_guid() . "@" . $host . ">";
-				$new_mime_message[] = "X-Auto-Response-Suppress: " . implode(", ", array("DR", "NDR", "RN", "NRN", "OOF", "AutoReply")); # we do not want anything
-				$new_mime_message[] = "X-Mailer: " . $version;
-				$new_mime_message[] = "";
-				$new_mime_message[] = $reply_message;
+				$new_mime_message = array
+					(
+					"From: " . ($to_name ? "\"" . $to_name . "\" <" . $to_user . "@" . $to_host . ">" : $to_user . "@" . $to_host),
+					"To: " . ($from_name ? "\"" . $from_name . "\" <" . $from_user . "@" . $from_host . ">" : $from_user . "@" . $from_host),
+					"Subject: OOF: " . $data["Email"]["Subject"],
+					"Reply-To: " . $to_user . "@" . $to_host,
+					"Auto-Submitted: auto-generated",
+					"Message-ID: <" . active_sync_create_guid() . "@" . $host . ">",
+					"X-Auto-Response-Suppress: " . implode(", ", array("DR", "NDR", "RN", "NRN", "OOF", "AutoReply")), # we do not want anything
+					"X-Mailer: " . $version,
+					"",
+					$reply_message
+					);
 
 				$new_mime_message = implode("\n", $new_mime_message);
 
@@ -10412,18 +10419,10 @@ function active_sync_openssl_is_key_in_use($expression)
 	$settings = active_sync_get_settings_cert();
 
 	foreach(array("requests", "certs") as $type)
-		{
-		if(isset($settings[$type]) === false)
-			continue;
-
-		foreach($settings[$type] as $name => $key)
-			{
-			if($key != $expression)
-				continue;
-
-			return(1);
-			}
-		}
+		if(isset($settings[$type]))
+			foreach($settings[$type] as $name => $key)
+				if($key == $expression)
+					return(1);
 
 	return(0);
 	}
