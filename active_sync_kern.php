@@ -1894,12 +1894,12 @@ function active_sync_get_need_folder_sync($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	$settings_server = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . ".sync");
 
 	foreach(array("SyncDat" => array()) as $key => $value)
-		$settings_server[$key] = (isset($settings_server[$key]) === false ? $value : $settings_server[$key]);
+		$settings_server[$key] = (isset($settings_server[$key]) ? $settings_server[$key] : $value);
 
 	foreach($settings_server["SyncDat"] as $server_id => $server_data)
 		{
@@ -2009,7 +2009,7 @@ function active_sync_get_need_wipe($request)
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
-	return(isset($settings["Wipe"]) === false ? 0 : 1);
+	return(isset($settings["Wipe"]) ? 1 : 0);
 	}
 
 function active_sync_get_parent_id_by_collection_id($user, $server_id)
@@ -2029,10 +2029,10 @@ function active_sync_get_parent_id_by_collection_id($user, $server_id)
 
 function active_sync_get_settings($file)
 	{
-	if(file_exists($file) === false)
-		$retval = "";
-	else
+	if(file_exists($file))
 		$retval = file_get_contents($file);
+	else
+		$retval = "";
 
 	if(strlen($retval) == 0)
 		$retval = array();
@@ -2079,7 +2079,7 @@ function active_sync_get_settings_sync($user, $collection_id, $device_id = "")
 		$retval = active_sync_get_settings(DAT_DIR . "/" . $user . "/" . $collection_id . "/" . $device_id . ".sync");
 
 		foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-			$retval[$key] = (isset($retval[$key]) === false ? $value : $retval[$key]);
+			$retval[$key] = (isset($retval[$key]) ? $retval[$key] : $value);
 		}
 
 	return($retval);
@@ -2571,7 +2571,7 @@ function active_sync_handle_folder_create($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	if($sync_key != $settings_client["SyncKey"])
 		{
@@ -2591,12 +2591,12 @@ function active_sync_handle_folder_create($request)
 		$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 		foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-			$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+			$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 		$settings_server = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . ".sync");
 
 		foreach(array("SyncDat" => array()) as $key => $value)
-			$settings_server[$key] = (isset($settings_server[$key]) === false ? $value : $settings_server[$key]);
+			$settings_server[$key] = (isset($settings_server[$key]) ? $settings_server[$key] : $value);
 
 		$settings_client["SyncKey"] = $sync_key_new;
 		$settings_client["SyncDat"] = $settings_server["SyncDat"];
@@ -2634,7 +2634,7 @@ function active_sync_handle_folder_delete($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	if($sync_key != $settings_client["SyncKey"])
 		{
@@ -2654,12 +2654,12 @@ function active_sync_handle_folder_delete($request)
 		$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 		foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-			$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+			$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 		$settings_server = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . ".sync");
 
 		foreach(array("SyncDat" => array()) as $key => $value)
-			$settings_server[$key] = (isset($settings_server[$key]) === false ? $value : $settings_server[$key]);
+			$settings_server[$key] = (isset($settings_server[$key]) ? $settings_server[$key] : $value);
 
 		$settings_client["SyncKey"] = $sync_key_new;
 		$settings_client["SyncDat"] = $settings_server["SyncDat"];
@@ -2694,7 +2694,7 @@ function active_sync_handle_folder_sync($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	if($sync_key == 0)
 		{
@@ -2763,7 +2763,7 @@ function active_sync_handle_folder_sync($request)
 			$settings_server = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . ".sync");
 
 			foreach(array("SyncDat" => array()) as $key => $value)
-				$settings_server[$key] = (isset($settings_server[$key]) === false ? $value : $settings_server[$key]);
+				$settings_server[$key] = (isset($settings_server[$key]) ? $settings_server[$key] : $value);
 
 			foreach($settings_server["SyncDat"] as $settings_server_id => $settings_server_data)
 				{
@@ -2830,7 +2830,7 @@ function active_sync_handle_folder_sync($request)
 			$count = 0;
 
 			foreach($actions as $action => $fields)
-				$count = $count + (isset($jobs[$action]) === false ? 0 : count($jobs[$action]));
+				$count = $count + (isset($jobs[$action]) ? count($jobs[$action]) : 0);
 
 			$response->x_open("Changes");
 
@@ -2869,7 +2869,7 @@ function active_sync_handle_folder_sync($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	$settings_client["SyncKey"] = $sync_key_new;
 	$settings_client["SyncDat"] = $folders;
@@ -2891,7 +2891,7 @@ function active_sync_handle_folder_update($request)
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 	foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-		$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+		$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 	if($sync_key != $settings_client["SyncKey"])
 		{
@@ -2911,12 +2911,12 @@ function active_sync_handle_folder_update($request)
 		$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 		foreach(array("SyncKey" => 0, "SyncDat" => array()) as $key => $value)
-			$settings_client[$key] = (isset($settings_client[$key]) === false ? $value : $settings_client[$key]);
+			$settings_client[$key] = (isset($settings_client[$key]) ? $settings_client[$key] : $value);
 
 		$settings_server = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . ".sync");
 
 		foreach(array("SyncDat" => array()) as $key => $value)
-			$settings_server[$key] = (isset($settings_server[$key]) === false ? $value : $settings_server[$key]);
+			$settings_server[$key] = (isset($settings_server[$key]) ? $settings_server[$key] : $value);
 
 		$settings_client["SyncKey"] = $sync_key_new;
 		$settings_client["SyncDat"] = $folders;
@@ -10378,7 +10378,7 @@ function active_sync_openssl_get_key_list()
 
 		$file_key = CRT_DIR . "/private/" . $name_key . ".pem";
 
-		$pass = (isset($settings["private"][$name_key]) === false ? "" : $settings["private"][$name_key]);
+		$pass = (isset($settings["private"][$name_key]) ? $settings["private"][$name_key] : "");
 
 		$key = file_get_contents($file_key);
 
@@ -10716,18 +10716,29 @@ function active_sync_send_sms($user, $mime)
 
 	exec("uuid -v4", $output);
 
-	$data = array();
-
-	$data["AirSync"]["Class"]		= "SMS";
-
-	$data["Email"]["DateReceived"]		= date("Y-m-d\TH:i:s.000\Z");
-	$data["Email"]["Read"]			= 1;
-	$data["Email"]["From"]			= "[MOBILE: " . $number . "]";
-	$data["Email"]["To"]			= "[MOBILE: " . $number . "]";
-
-	$data["Body"][1]["Type"]		= 1;
-	$data["Body"][1]["EstimatedDataSize"]	= strlen($text);
-	$data["Body"][1]["Data"]		= $text;
+	$data = array
+		(
+		"AirSync" => array
+			(
+			"Class" => "SMS"
+			),
+		"Email" => array
+			(
+			"DateReceived" => date("Y-m-d\TH:i:s.000\Z"),
+			"Read" => 1,
+			"From" => "[MOBILE: " . $number . "]",
+			"To" => "[MOBILE: " . $number . "]"
+			),
+		"Body" => array
+			(
+			array
+				(
+				"Type" => 1,
+				"EstimatedDataSize" => strlen($text),
+				"Data" => $text
+				)
+			)
+		);
 
 	active_sync_put_settings_data($user, "9006", $output[0], $data);
 */
@@ -10914,7 +10925,7 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 	$x = array();
 
 	foreach(array("CompanyName", "Department", "OfficeLocation") as $token)
-		$x[] = (isset($data["Contacts"][$token]) === false ? "" : str_replace(";", "\;", $data["Contacts"][$token]));
+		$x[] = (isset($data["Contacts"][$token]) ? str_replace(";", "\;", $data["Contacts"][$token]) : "");
 
 	if(strlen(implode("", $x)) > 0)
 		$retval[] = implode(":", array("ORG", implode(";", $x)));
@@ -10922,7 +10933,7 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 	$x = array();
 
 	foreach(array("LastName", "FirstName", "MiddleName", "Title", "Suffix") as $token)
-		$x[] = (isset($data["Contacts"][$token]) === false ? "" : str_replace(";", "\;", $data["Contacts"][$token]));
+		$x[] = (isset($data["Contacts"][$token]) ? str_replace(";", "\;", $data["Contacts"][$token]) : "");
 
 	if(strlen(implode("", $x)) > 0)
 		$retval[] = implode(":", array("N", implode(";", $x)));
@@ -10935,7 +10946,7 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 		$x = array("", "");
 
 		foreach(array("Street", "City", "State", "PostalCode", "Country") as $token_suffix)
-			$x[] = (isset($data["Contacts"][$token_prefix . "Address" . $token_suffix]) === false ? "" : str_replace(";", "\;", $data["Contacts"][$token_prefix . "Address" . $token_suffix]));
+			$x[] = (isset($data["Contacts"][$token_prefix . "Address" . $token_suffix]) ? str_replace(";", "\;", $data["Contacts"][$token_prefix . "Address" . $token_suffix]) : "");
 
 		if(strlen(implode("", $x)) == 0)
 			continue;
@@ -11021,12 +11032,8 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 function active_sync_wbxml_get_charset_id_by_name($expression)
 	{
 	foreach(range(0x0000, 0xFFFF) as $id)
-		{
-		if(active_sync_wbxml_get_charset_name_by_id($id) != $name)
-			continue;
-
-		return($id);
-		}
+		if(active_sync_wbxml_get_charset_name_by_id($id) == $name)
+			return($id);
 
 	return(99);
 	}
@@ -11035,18 +11042,14 @@ function active_sync_wbxml_get_charset_name_by_id($id)
 	{
 	$table = active_sync_wbxml_table_charset();
 
-	return(isset($table[$id]) === false ? $id : $table[$id]);
+	return(isset($table[$id]) ? $table[$id] : $id);
 	}
 
 function active_sync_wbxml_get_codepage_id_by_name($name)
 	{
 	foreach(range(0x00, 0x1F) as $id)
-		{
-		if(active_sync_wbxml_get_codepage_name_by_id($id) != $name)
-			continue;
-
-		return($id);
-		}
+		if(active_sync_wbxml_get_codepage_name_by_id($id) == $name)
+			return($id);
 
 	return(99);
 	}
@@ -11055,7 +11058,7 @@ function active_sync_wbxml_get_codepage_name_by_id($id)
 	{
 	$table = active_sync_wbxml_table_codepage();
 
-	return(isset($table[$id & 0x1F]) === false ? "unknown" : $table[$id & 0x1F]);
+	return(isset($table[$id & 0x1F]) ? $table[$id & 0x1F] : "unknown");
 	}
 
 function active_sync_wbxml_get_integer($input, & $position = 0)
@@ -11093,12 +11096,8 @@ function active_sync_wbxml_get_public_identifier_id_by_name($expression)
 	$table = active_sync_wbxml_table_public_identifier();
 
 	foreach($table as $id => $name)
-		{
-		if($id != $expression)
-			continue;
-
-		return($id);
-		}
+		if($id == $expression)
+			return($id);
 
 	return(99);
 	}
@@ -11107,7 +11106,7 @@ function active_sync_wbxml_get_public_identifier_name_by_id($id)
 	{
 	$table = active_sync_wbxml_table_public_identifier();
 
-	return(isset($table[$id]) === false ? $id : $table[$id]);
+	return(isset($table[$id]) ? $table[$id] : $id);
 	}
 
 function active_sync_wbxml_get_string($input, & $position = 0)
@@ -11138,26 +11137,22 @@ function active_sync_wbxml_get_string_length($input, & $position = 0, $length = 
 
 function active_sync_wbxml_get_token_id_by_name($codepage, $token)
 	{
-	$codepage = (is_numeric($codepage) === false ? active_sync_wbxml_get_codepage_id_by_name($codepage) : $codepage);
+	$codepage = (is_numeric($codepage) ? $codepage : active_sync_wbxml_get_codepage_id_by_name($codepage));
 
 	foreach(range(0x05, 0x3F) as $id)
-		{
-		if(active_sync_wbxml_get_token_name_by_id($codepage, $id) != $token)
-			continue;
-
-		return($id);
-		}
+		if(active_sync_wbxml_get_token_name_by_id($codepage, $id) == $token)
+			return($id);
 
 	return(99);
 	}
 
 function active_sync_wbxml_get_token_name_by_id($codepage, $id)
 	{
-	$codepage = (is_numeric($codepage) === false ? active_sync_wbxml_get_codepage_id_by_name($codepage) : $codepage);
+	$codepage = (is_numeric($codepage) ? $codepage : active_sync_wbxml_get_codepage_id_by_name($codepage));
 
 	$table = active_sync_wbxml_table_token();
 
-	return(isset($table[$codepage][$id & 0x3F]) === false ? "unknown" : $table[$codepage][$id & 0x3F]);
+	return(isset($table[$codepage][$id & 0x3F]) ? $table[$codepage][$id & 0x3F] : "unknown");
 	}
 
 function active_sync_wbxml_pretty($expression)
@@ -12045,9 +12040,7 @@ class active_sync_wbxml_response
 			$this->response = $this->response . chr(0x00);
 			}
 		else
-			{
 			$this->x_print_bin($string);
-			}
 		}
 
 	function x_print_bin($string)
