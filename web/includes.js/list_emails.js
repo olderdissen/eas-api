@@ -89,9 +89,9 @@ function list_emails(id_search_result)
 
 			if((mail_date_received >= range_t_s) && (mail_date_received <= range_t_e))
 				{
-				if(label != "t") // today
+				if(label != "Heute") // today
 					{
-					label = "t";
+					label = "Heute";
 					count = 0;
 					}
 
@@ -100,9 +100,9 @@ function list_emails(id_search_result)
 
 			if((mail_date_received >= range_y_s) && (mail_date_received <= range_y_e))
 				{
-				if(label != "y") // yesterday
+				if(label != "Gestern") // yesterday
 					{
-					label = "y";
+					label = "Gestern";
 					count = 0;
 					}
 
@@ -111,9 +111,9 @@ function list_emails(id_search_result)
 
 			if(mail_date_received < range_y_s)
 				{
-				if(label != "p") // previous
+				if(label != "Vorherige Tage") // previous
 					{
-					label = "p";
+					label = "Vorherige Tage";
 					count = 0;
 					}
 
@@ -122,9 +122,9 @@ function list_emails(id_search_result)
 
 			if(mail_date_received > range_t_e)
 				{
-				if(label != "f") // future (if sender use wrong date)
+				if(label != "Zukünftige Tage") // future (if sender use wrong date)
 					{
-					label = "f";
+					label = "Zukünftige Tage";
 					count = 0;
 					}
 
@@ -137,22 +137,14 @@ function list_emails(id_search_result)
 					h.push('<div class="email_title_check">');
 						h.push('<input id="' + label + '" type="checkbox" onclick="mail_update_seleted(this);">');
 					h.push('</div>');
-					h.push('<div class="email_title_text">');
-						h.push('email:view:' + label);
-					h.push('</div>');
+					h.push('<div class="email_title_text">' + label + '</div>');
 				h.push('</div>');
 				}
 
 			h.push('<table' + (mail_read == 1 ? '' : ' style="font-weight: bold;"') + ' id="' + mail_server_id + '" onmousedown="popup_email_menu(event, this, \'' + mail_server_id + '\');" onmouseover="this.className = \'list_medium list_hover\';" onmouseout="this.className = \'list_medium ' + ["list_odd", "list_even"][count % 2] + '\';" class="list_medium ' + ["list_odd", "list_even"][count % 2] + '">');
 				h.push('<tr>');
 					h.push('<td>');
-						h.push('&nbsp;');
-					h.push('</td>');
-					h.push('<td>');
 						h.push('<input id="' + label + '" type="checkbox" name="msg_id[]" onclick="mail_update_seleted(this);" value="' + mail_server_id + '">');
-					h.push('</td>');
-					h.push('<td>');
-						h.push('&nbsp;');
 					h.push('</td>');
 					h.push('<td style="width: 100%;">');
 						h.push('<table>');
@@ -177,9 +169,6 @@ function list_emails(id_search_result)
 													h.push(mail_last_verb_executed == 1 ? '<img src="images/replied.png"> ' : '');
 													h.push(mail_last_verb_executed == 2 ? '<img src="images/replied_all.png"> ' : '');
 													h.push(mail_last_verb_executed == 3 ? '<img src="images/forwarded.png"> ' : '');
-												h.push('</td>');
-												h.push('<td>');
-													h.push('&nbsp;');
 												h.push('</td>');
 												}
 
@@ -223,9 +212,6 @@ function list_emails(id_search_result)
 								h.push('</td>');
 							h.push('</tr>');
 						h.push('</table>');
-					h.push('</td>');
-					h.push('<td>');
-						h.push('&nbsp;');
 					h.push('</td>');
 				h.push('</tr>');
 			h.push('</table>');

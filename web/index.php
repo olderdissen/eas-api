@@ -120,9 +120,7 @@ elseif(file_exists(DAT_DIR . "/login.data") === false)
 	elseif($Request["Cmd"] == "UserCreate")
 		{
 		if(is_dir(DAT_DIR) === false)
-			{
 			mkdir(DAT_DIR, 0777, true);
-			}
 
 		if(file_exists(DAT_DIR . "/login.data") === false)
 			{
@@ -134,9 +132,7 @@ elseif(file_exists(DAT_DIR . "/login.data") === false)
 		header("Location: index.php");
 		}
 	else
-		{
 		header("Location: index.php");
-		}
 	}
 elseif(active_sync_get_is_identified($Request) == 0)
 	{
@@ -192,14 +188,8 @@ else
 		{
 		$file = WEB_DIR . "/includes.php/index_" . $section . ".php";
 
-		if(file_exists($file) === false)
-			{
-#			print("include file " . $file . " not found");
-			}
-		else
-			{
+		if(file_exists($file))
 			include_once($file);
-			}
 		}
 
 	active_sync_load_includes("includes");

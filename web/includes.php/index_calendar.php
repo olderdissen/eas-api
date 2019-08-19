@@ -31,15 +31,15 @@ if($Request["Cmd"] == "Search")
 						{
 						case("Data"):
 							if(isset($data["Body"][0][$key]) === false)
-								continue;
+								break;
 
 							$item = $data["Body"][0][$key];
 
 							if(substr(strtolower($item), 0, strlen($Request["Search"])) != strtolower($Request["Search"]))
-								continue;
+								break;
 
 							if(strlen($Request["Search"]) == strlen($item))
-								continue;
+								break;
 
 							$temp = array();
 
@@ -56,15 +56,15 @@ if($Request["Cmd"] == "Search")
 							break;
 						default:
 							if(isset($data["Calendar"][$key]) === false)
-								continue;
+								break;
 
 							$item = $data["Calendar"][$key];
 
 							if(substr(strtolower($item), 0, strlen($Request["Search"])) != strtolower($Request["Search"]))
-								continue;
+								break;
 
 							if(strlen($Request["Search"]) == strlen($item))
-								continue;
+								break;
 
 							$temp = array();
 
