@@ -1544,12 +1544,8 @@ function active_sync_get_display_name_by_collection_id($user, $server_id)
 	$folders = active_sync_get_settings(DAT_DIR . "/" . $user . ".sync");
 
 	foreach($folders as $folder)
-		{
-		if($folder["ServerId"] != $server_id)
-			continue;
-
-		return($folder["DisplayName"]);
-		}
+		if($folder["ServerId"] == $server_id)
+			return($folder["DisplayName"]);
 
 	return("");
 	}
@@ -1778,15 +1774,9 @@ function active_sync_get_is_phone($phone)
 function active_sync_get_is_phone_available($data)
 	{
 	foreach(array("AssistnamePhoneNumber", "CarPhoneNumber", "MobilePhoneNumber", "PagerNumber", "RadioPhoneNumber", "BusinessFaxNumber", "BusinessPhoneNumber", "Business2PhoneNumber", "HomeFaxNumber", "HomePhoneNumber", "Home2PhoneNumber") as $token)
-		{
-		if(isset($data["Contacts"][$token]) === false)
-			continue;
-
-		if(strlen($data["Contacts"][$token]) == 0)
-			continue;
-
-		return(1);
-		}
+		if(isset($data["Contacts"][$token]))
+			if(strlen($data["Contacts"][$token]) > 0)
+				return(1);
 
 	return(0);
 	}
