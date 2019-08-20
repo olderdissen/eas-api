@@ -7,7 +7,12 @@ define("LOG_DIR", __DIR__ . "/logs");
 define("WEB_DIR", __DIR__ . "/web");
 define("ATT_DIR", __DIR__ . "/files");
 define("MAN_DIR", __DIR__ . "/man");
-#define("DEB_DAT", "");
+
+define("ACTIVE_SYNC_DATA_DECODE", 0 - 1);
+define("ACTIVE_SYNC_DATA_ENCODE", 0 + 1);
+
+define("ACTIVE_SYNC_REMOTE_WIPE", 1);
+define("ACTIVE_SYNC_ACCOUNT_ONLY_REMOTE_WIPE", 2);
 
 ################################################################################
 
@@ -33,12 +38,15 @@ function active_sync_timeout()
 	}
 
 ################################################################################
+/*
 
-#include_once(INC_DIR . "/active_sync_load_includes.php");
+if(defined("INC_DIR"))
+	include_once(INC_DIR . "/active_sync_load_includes.php");
 
+if(function_exists("active_sync_load_includes"))
+	active_sync_load_includes(INC_DIR);
+*/
 ################################################################################
-
-#active_sync_load_includes(INC_DIR);
 
 # sudo find . -type d -exec chmod 0755 {} \; && sudo find . -type f -exec chmod 0644 {} \; && sudo chown www-data:www-data -R *
 
@@ -395,9 +403,6 @@ function active_sync_create_guid_filename($user, $collection_id)
 
 	return(0);
 	}
-
-define("ACTIVE_SYNC_DATA_DECODE", 0 - 1);
-define("ACTIVE_SYNC_DATA_ENCODE", 0 + 1);
 
 function active_sync_data_code($string, $key, $direction)
 	{
@@ -2017,12 +2022,8 @@ function active_sync_get_parent_id_by_collection_id($user, $server_id)
 	$settings_server = active_sync_get_settings(DAT_DIR . "/" . $user . ".sync");
 
 	foreach($settings_server["SyncDat"] as $folder)
-		{
-		if($folder["ServerId"] != $server_id)
-			continue;
-
-		return($folder["ParentId"]);
-		}
+		if($folder["ServerId"] == $server_id)
+			return($folder["ParentId"]);
 
 	return(0);
 	}
@@ -2036,15 +2037,15 @@ function active_sync_get_settings($file)
 
 	if(strlen($retval) == 0)
 		$retval = array();
-	elseif(substr($retval, 0, 1) == "a")
+	elseif($retval[0] == "a")
 		$retval = unserialize($retval);
-	elseif(substr($retval, 0, 1) == "i")
+	elseif($retval[0] == "i")
 		$retval = unserialize($retval);
-	elseif(substr($retval, 0, 1) == "s")
+	elseif($retval[0] == "s")
 		$retval = unserialize($retval);
-	elseif(substr($retval, 0, 1) == "[")
+	elseif($retval[0] == "[")
 		$retval = json_decode($retval, true);
-	elseif(substr($retval, 0, 1) == "{")
+	elseif($retval[0] == "{")
 		$retval = json_decode($retval, true);
 	else
 		$retval = array();
@@ -2092,12 +2093,8 @@ function active_sync_get_supported_commands()
 	$handles = active_sync_get_table_handle();
 
 	foreach($handles as $command => $function)
-		{
-		if(function_exists($function) === false)
-			continue;
-
-		$retval[] = $command;
-		}
+		if(function_exists($function))
+			$retval[] = $command;
 
 	return(implode(",", $retval));
 	}
@@ -2148,29 +2145,29 @@ function active_sync_get_table_handle()
 	{
 	$table = array
 		(
-		"Sync" => "active_sync_handle_sync",
-		"SendMail" => "active_sync_handle_send_mail",
-		"SmartForward" => "active_sync_handle_smart_forward",
-		"SmartReply" => "active_sync_handle_smart_reply",
-		"GetAttachment" => "active_sync_handle_get_attachment",
-		"GetHierarchy" => "active_sync_handle_get_hierarchy",		# DEPRECATED
-		"CreateCollection" => "active_sync_handle_create_collection",	# DEPRECATED
-		"DeleteCollection" => "active_sync_handle_delete_collection",	# DEPRECATED
-		"MoveCollection" => "active_sync_handle_move_collection",	# DEPRECATED
-		"FolderSync" => "active_sync_handle_folder_sync",
-		"FolderCreate" => "active_sync_handle_folder_create",
-		"FolderDelete" => "active_sync_handle_folder_delete",
-		"FolderUpdate" => "active_sync_handle_folder_update",
-		"MoveItems" => "active_sync_handle_move_items",
-		"GetItemEstimate" => "active_sync_handle_get_item_estimate",
-		"MeetingResponse" => "active_sync_handle_meeting_response",
-		"Search" => "active_sync_handle_search",
-		"Settings" => "active_sync_handle_settings",
-		"Ping" => "active_sync_handle_ping",
-		"ItemOperations" => "active_sync_handle_item_operations",
-		"Provision" => "active_sync_handle_provision",
-		"ResolveRecipients" => "active_sync_handle_resolve_recipients",
-		"ValidateCert" => "active_sync_handle_validate_cert"
+		"Sync"				=> "active_sync_handle_sync",
+		"SendMail"			=> "active_sync_handle_send_mail",
+		"SmartForward"			=> "active_sync_handle_smart_forward",
+		"SmartReply"			=> "active_sync_handle_smart_reply",
+		"GetAttachment"			=> "active_sync_handle_get_attachment",
+		"GetHierarchy"			=> "active_sync_handle_get_hierarchy",		# DEPRECATED
+		"CreateCollection"		=> "active_sync_handle_create_collection",	# DEPRECATED
+		"DeleteCollection"		=> "active_sync_handle_delete_collection",	# DEPRECATED
+		"MoveCollection"		=> "active_sync_handle_move_collection",	# DEPRECATED
+		"FolderSync"			=> "active_sync_handle_folder_sync",
+		"FolderCreate"			=> "active_sync_handle_folder_create",
+		"FolderDelete"			=> "active_sync_handle_folder_delete",
+		"FolderUpdate"			=> "active_sync_handle_folder_update",
+		"MoveItems"			=> "active_sync_handle_move_items",
+		"GetItemEstimate"		=> "active_sync_handle_get_item_estimate",
+		"MeetingResponse"		=> "active_sync_handle_meeting_response",
+		"Search"			=> "active_sync_handle_search",
+		"Settings"			=> "active_sync_handle_settings",
+		"Ping"				=> "active_sync_handle_ping",
+		"ItemOperations"		=> "active_sync_handle_item_operations",
+		"Provision"			=> "active_sync_handle_provision",
+		"ResolveRecipients"		=> "active_sync_handle_resolve_recipients",
+		"ValidateCert"			=> "active_sync_handle_validate_cert"
 		);
 
 	return($table);
@@ -2180,11 +2177,11 @@ function active_sync_get_table_handle_settings()
 	{
 	$table = array
 		(
-		"Oof" => "active_sync_handle_setting_oof",
-		"DevicePassword" => "active_sync_handle_setting_device_password",
-		"DeviceInformation" => "active_sync_handle_setting_device_information",
-		"UserInformation" => "active_sync_handle_setting_user_information",
-		"RightsManagementInformation" => "active_sync_handle_setting_rights_management_information"
+		"Oof"				=> "active_sync_handle_setting_oof",
+		"DevicePassword"		=> "active_sync_handle_setting_device_password",
+		"DeviceInformation"		=> "active_sync_handle_setting_device_information",
+		"UserInformation"		=> "active_sync_handle_setting_user_information",
+		"RightsManagementInformation"	=> "active_sync_handle_setting_rights_management_information"
 		);
 
 	return($table);
@@ -4083,9 +4080,6 @@ function active_sync_handle_ping($request)
 	return($response->response);
 	}
 
-define("REMOTE_WIPE", 1);
-define("ACCOUNT_ONLY_REMOTE_WIPE", 2);
-
 function active_sync_handle_provision($request)
 	{
 	$xml = active_sync_wbxml_request_parse_a($request["wbxml"]);
@@ -4269,7 +4263,7 @@ function active_sync_handle_provision($request)
 				$status = 1; # The client remote wipe was sucessful.
 			elseif(isset($xml->RemoteWipe->Status) === false)
 				{
-				$remote_wipe = ACCOUNT_ONLY_REMOTE_WIPE;
+				$remote_wipe = ACTIVE_SYNC_ACCOUNT_ONLY_REMOTE_WIPE;
 
 				$status = 1; # The client remote wipe was sucessful.
 				}
@@ -4293,9 +4287,9 @@ function active_sync_handle_provision($request)
 			if($remote_wipe == 0)
 				{
 				}
-			elseif($remote_wipe == REMOTE_WIPE)
+			elseif($remote_wipe == ACTIVE_SYNC_REMOTE_WIPE)
 				$response->x_open("RemoteWipe", false);
-			elseif($remote_wipe == ACCOUNT_ONLY_REMOTE_WIPE)
+			elseif($remote_wipe == ACTIVE_SYNC_ACCOUNT_ONLY_REMOTE_WIPE)
 				$response->x_open("AccountOnlyRemoteWipe", false);
 			}
 
