@@ -6,7 +6,6 @@ define("INC_DIR", __DIR__ . "/kern");
 define("LOG_DIR", __DIR__ . "/logs");
 define("WEB_DIR", __DIR__ . "/web");
 define("ATT_DIR", __DIR__ . "/files");
-define("MAN_DIR", __DIR__ . "/man");
 
 define("ACTIVE_SYNC_DATA_DECODE", 0 - 1);
 define("ACTIVE_SYNC_DATA_ENCODE", 0 + 1);
@@ -17,6 +16,7 @@ define("ACTIVE_SYNC_ACCOUNT_ONLY_REMOTE_WIPE", 2);
 ################################################################################
 
 setlocale(LC_ALL, "de_DE.UTF-8");
+
 date_default_timezone_set("UTC"); # all stored datetime uses utc zone !!!
 
 ################################################################################
@@ -64,10 +64,9 @@ function active_sync_body_type_exist($data, $type)
 function active_sync_compare_address($data, $expression)
 	{
 	foreach(array("BusinessAddress", "HomeAddress", "OtherAddress") as $token)
-		{
 		foreach(array("Country", "State", "City", "PostalCode", "Street") as $key)
 			{
-			if(isset($data["Contacts"][$token . $key]) === false)
+			if(! isset($data["Contacts"][$token . $key]))
 				continue;
 
 			if(strlen($data["Contacts"][$token . $key]) == 0)
@@ -79,14 +78,11 @@ function active_sync_compare_address($data, $expression)
 			$x = strtolower($x);
 			$y = strtolower($y);
 
-			if(substr($y, 0, strlen($x)) != $x)
-				continue;
-
-			return(1);
+			if(substr($y, 0, strlen($x)) == $x)
+				return(true);
 			}
-		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_compare_name($data, $expression)
@@ -97,7 +93,7 @@ function active_sync_compare_name($data, $expression)
 
 	foreach(array("FirstName", "LastName", "MiddleName", "Email1Address", "Email2Address", "Email3Address", "JobTitle", "CompanyName") as $token)
 		{
-		if(isset($data["Contacts"][$token]) === false)
+		if(! isset($data["Contacts"][$token]))
 			continue;
 
 		if(strlen($data["Contacts"][$token]) == 0)
@@ -109,20 +105,18 @@ function active_sync_compare_name($data, $expression)
 		$x = strtolower($x);
 		$y = strtolower($y);
 
-		if(substr($y, 0, strlen($x)) != $x)
-			continue;
-
-		return(1);
+		if(substr($y, 0, strlen($x)) == $x)
+			return(true);
 		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_compare_other($data, $expression)
 	{
 	foreach(array("NickName", "CustomerId") as $token)
 		{
-		if(isset($data["Contacts2"][$token]) === false)
+		if(! isset($data["Contacts2"][$token]))
 			continue;
 
 		if(strlen($data["Contacts2"][$token]) == 0)
@@ -134,20 +128,18 @@ function active_sync_compare_other($data, $expression)
 		$x = strtolower($x);
 		$y = strtolower($y);
 
-		if(substr($y, 0, strlen($x)) != $x)
-			continue;
-
-		return(1);
+		if(substr($y, 0, strlen($x)) == $x)
+			return(true);
 		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_compare_phone($data, $expression)
 	{
 	foreach(array("AssistnamePhoneNumber", "CarPhoneNumber", "MobilePhoneNumber", "PagerNumber", "RadioPhoneNumber", "BusinessFaxNumber", "BusinessPhoneNumber", "Business2PhoneNumber", "HomeFaxNumber", "HomePhoneNumber", "Home2PhoneNumber") as $token)
 		{
-		if(isset($data["Contacts"][$token]) === false)
+		if(! isset($data["Contacts"][$token]))
 			continue;
 
 		if(strlen($data["Contacts"][$token]) == 0)
@@ -162,13 +154,11 @@ function active_sync_compare_phone($data, $expression)
 		$x = strtolower($x);
 		$y = strtolower($y);
 
-		if(substr($y, 0, strlen($x)) != $x)
-			continue;
-
-		return(1);
+		if(substr($y, 0, strlen($x)) == $x)
+			return(true);
 		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_create_fullname_from_data($data, $style = 2)
@@ -186,7 +176,7 @@ function active_sync_create_fullname_from_data($data, $style = 2)
 
 	foreach($styles[$style] as $token => $prefix)
 		{
-		if(isset($data["Contacts"][$token]) === false)
+		if(! isset($data["Contacts"][$token]))
 			continue;
 
 		if(strlen($data["Contacts"][$token]) == 0)
@@ -202,7 +192,7 @@ function active_sync_create_fullname_from_data($data, $style = 2)
 
 	foreach(array("YomiLastName" => "", "YomiFirstName" => " ") as $token => $prefix)
 		{
-		if(isset($data["Contacts"][$token]) === false)
+		if(! isset($data["Contacts"][$token]))
 			continue;
 
 		if(strlen($data["Contacts"][$token]) == 0)
@@ -234,13 +224,9 @@ function active_sync_create_fullname_from_data($data, $style = 2)
 
 		list($codepage, $token) = explode(":", $items, 2);
 
-		if(isset($data[$codepage][$token]) === false)
-			continue;
-
-		if(strlen($data[$codepage][$token]) == 0)
-			continue;
-
-		$retval[] = $data[$codepage][$token];
+		if(isset($data[$codepage][$token]))
+			if(strlen($data[$codepage][$token]) > 0)
+				$retval[] = $data[$codepage][$token];
 		}
 
 	if(count($retval) == 0)
@@ -274,10 +260,10 @@ function active_sync_create_guid($version = 4, $name = "", $namespace = "{000000
 
 	################################################################################
 
-#		exec("uuid -v 1", $output);
-#		exec("uuid -v 3 " . $namespace . " " . $name, $output);
-#		exec("uuid -v 4", $output);
-#		exec("uuid -v 5 " . $namespace . " " . $name, $output);
+#	exec("uuid -v 1", $output);
+#	exec("uuid -v 3 " . $namespace . " " . $name, $output);
+#	exec("uuid -v 4", $output);
+#	exec("uuid -v 5 " . $namespace . " " . $name, $output);
 
 	################################################################################
 	# set default values
@@ -384,19 +370,16 @@ function active_sync_create_guid($version = 4, $name = "", $namespace = "{000000
 
 function active_sync_create_guid_filename($user, $collection_id)
 	{
-	$count = 0;
+	$tries = 0;
 
-	while(1)
+	while($tries < 20)
 		{
 		$server_id = active_sync_create_guid();
 
-		if(file_exists(DAT_DIR . "/" . $user . "/" . $collection_id . "/" . $server_id . ".data") === false)
+		if(! file_exists(DAT_DIR . "/" . $user . "/" . $collection_id . "/" . $server_id . ".data"))
 			return($server_id);
 
-		$count ++;
-
-		if($count > 20)
-			break;
+		$tries ++;
 		}
 
 	active_sync_debug("failed to create a unique filename");
@@ -419,16 +402,16 @@ function active_sync_debug($expression, $type = "DEBUG")
 	{
 #	return;
 
-	if(defined("LOG_DIR") === false)
+	if(! defined("LOG_DIR"))
 		return(false);
 
-	if(is_dir(LOG_DIR) === false)
+	if(! is_dir(LOG_DIR))
 		mkdir(LOG_DIR, 0777, true);
 
-	if(defined("DEB_DAT") === false)
+	if(! defined("DEB_DAT"))
 		{
 		$device_id = date("Y-m-d");
-		$device_id = (isset($_GET["DeviceId"]) === false ? $device_id : $_GET["DeviceId"]);
+		$device_id = (isset($_GET["DeviceId"]) ? $_GET["DeviceId"] : $device_id);
 
 		define("DEB_DAT", fopen(LOG_DIR . "/as-debug-" . $device_id . ".txt", "a+"));
 		}
@@ -437,9 +420,9 @@ function active_sync_debug($expression, $type = "DEBUG")
 		{
 		$d = "TIME: " . date("Y-m-d H:i:s");
 
-		$p = (isset($_SERVER["REMOTE_PORT"]) === false ? "-" : $_SERVER["REMOTE_PORT"]);
+		$p = (isset($_SERVER["REMOTE_PORT"]) ? $_SERVER["REMOTE_PORT"] : "-");
 
-		$c = (isset($_GET["Cmd"]) === false ? "-" : $_GET["Cmd"]);
+		$c = (isset($_GET["Cmd"]) ? $_GET["Cmd"] : "-");
 
 		$e = (strlen($expression) == 0 ? "EMPTY" : $expression);
 		$e = (strpos($expression, "\n") === false ? " " : "\n") . $e;
@@ -510,7 +493,7 @@ function active_sync_folder_create($user, $parent_id, $display_name, $type)
 	if($server_id == 0)
 		return(6);
 
-	if(mkdir(DAT_DIR . "/" . $user . "/" . $server_id, 0777, true) === false)
+	if(! mkdir(DAT_DIR . "/" . $user . "/" . $server_id, 0777, true))
 		return(6);
 
 	$settings_server = active_sync_get_settings(DAT_DIR . "/" . $user . ".sync"); # observe order of parameters
@@ -574,13 +557,13 @@ function active_sync_folder_delete_helper(& $folders, $user, $server_id)
 
 function active_sync_folder_init($user)
 	{
-	if(defined("DAT_DIR") === false)
+	if(! defined("DAT_DIR"))
 		die("DAT_DIR is not defined. have you included active_sync_kern.php before? DAT_DIR is needed to store settings and user data.");
 
-	if(is_dir(DAT_DIR) === false)
+	if(! is_dir(DAT_DIR))
 		mkdir(DAT_DIR, 0777, true);
 
-	if(file_exists(DAT_DIR . "/.htaccess") === false)
+	if(! file_exists(DAT_DIR . "/.htaccess"))
 		{
 		$data = array
 			(
@@ -593,7 +576,7 @@ function active_sync_folder_init($user)
 		file_put_contents(DAT_DIR . "/.htaccess", implode("\n", $data));
 		}
 
-	if(is_dir(DAT_DIR . "/" . $user) === false)
+	if(! is_dir(DAT_DIR . "/" . $user))
 		mkdir(DAT_DIR . "/" . $user, 0777, true);
 
 	$settings_server = active_sync_get_settings(DAT_DIR . "/" . $user . ".sync"); # observe order of parameters
@@ -616,10 +599,10 @@ function active_sync_folder_init($user)
 		mkdir(DAT_DIR . "/" . $user . "/" . $folder["ServerId"], 0777, true);
 		}
 
-	if(defined("LOG_DIR") === false)
+	if(! defined("LOG_DIR"))
 		return;
 
-	if(is_dir(LOG_DIR) === false)
+	if(! is_dir(LOG_DIR))
 		mkdir(LOG_DIR, 0777, true);
 	}
 
@@ -691,16 +674,16 @@ function active_sync_get_categories_by_collection_id($user_id, $collection_id)
 
 		$data = active_sync_get_settings_data($user_id, $collection_id, $server_id);
 
-		if(isset($data["Categories"]) === false)
+		if(! isset($data["Categories"]))
 			$retval["*"] ++;
 		elseif(count($data["Categories"]) == 0)
 			$retval["*"] ++;
 		else
 			foreach($data["Categories"] as $id => $category)
-				if(isset($retval[$category]) === false)
-					$retval[$category] = 1;
-				else
+				if(isset($retval[$category]))
 					$retval[$category] ++;
+				else
+					$retval[$category] = 1;
 		}
 
 	if(count($retval) > 1)
@@ -725,27 +708,26 @@ function active_sync_get_class_by_type($type)
 
 	$classes = array
 		(
+		1 => "",		# User-created folder (generic)
+		2 => "Email",		# Default Inbox folder
+		3 => "Email",		# Default Drafts folder
+		4 => "Email",		# Default Deleted Items folder
+		5 => "Email",		# Default Sent Items folder
+		6 => "Email",		# Default Outbox folder
+		7 => "Tasks",		# Default Tasks folder
+		8 => "Calendar",	# Default Calendar folder
+		9 => "Contacts",	# Default Contacts folder
+		10 => "Notes",		# Default Notes folder
+		11 => "Journal",	# Default Journal folder
+		12 => "Email",		# User-created Mail folder
+		13 => "Calendar",	# User-created Calendar folder
+		14 => "Contacts",	# User-created Contacts folder
+		15 => "Tasks",		# User-created Tasks folder
+		16 => "Journal",	# User-created Journal folder
+		17 => "Notes",		# User-created Notes folder
+		18 => "",		# Unknown folder type
+		19 => ""		# Recipient information cache
 		);
-
-	$classes[1] = "";		# User-created folder (generic)
-	$classes[2] = "Email";		# Default Inbox folder
-	$classes[3] = "Email";		# Default Drafts folder
-	$classes[4] = "Email";		# Default Deleted Items folder
-	$classes[5] = "Email";		# Default Sent Items folder
-	$classes[6] = "Email";		# Default Outbox folder
-	$classes[7] = "Tasks";		# Default Tasks folder
-	$classes[8] = "Calendar";	# Default Calendar folder
-	$classes[9] = "Contacts";	# Default Contacts folder
-	$classes[10] = "Notes";		# Default Notes folder
-	$classes[11] = "Journal";	# Default Journal folder
-	$classes[12] = "Email";		# User-created Mail folder
-	$classes[13] = "Calendar";	# User-created Calendar folder
-	$classes[14] = "Contacts";	# User-created Contacts folder
-	$classes[15] = "Tasks";		# User-created Tasks folder
-	$classes[16] = "Journal";	# User-created Journal folder
-	$classes[17] = "Notes";		# User-created Notes folder
-	$classes[18] = "";		# Unknown folder type
-	$classes[19] = "";		# Recipient information cache
 
 	$type = (($type < 1) || ($type > 19) ? 18 : $type);
 
@@ -1604,7 +1586,7 @@ function active_sync_get_freebusy($user_id, $start_time, $end_time, $busy_status
 		$data = active_sync_get_settings_data($user_id, $collection_id, $server_id);
 
 		foreach(array("EndTime" => 0, "StartTime" => 0, "BusyStatus" => 0) as $token => $value)
-			$data["Calendar"][$token] = (isset($data["Calendar"][$token]) === false ? $value : $data["Calendar"][$token]);
+			$data["Calendar"][$token] = (isset($data["Calendar"][$token]) ? $data["Calendar"][$token] : $value);
 
 		if(strtotime($data["Calendar"]["StartTime"]) > $end_time)
 			continue;
@@ -1624,7 +1606,7 @@ function active_sync_get_freebusy($user_id, $start_time, $end_time, $busy_status
 
 			$k = intval(($s - $start_time) / $steps);
 
-			$v = (isset($data["Calendar"]["BusyStatus"]) === false ? $busy_status : $data["Calendar"]["BusyStatus"]);
+			$v = (isset($data["Calendar"]["BusyStatus"]) ? $data["Calendar"]["BusyStatus"] : $busy_status);
 
 			$retval[$k] = $v;
 			}
@@ -1731,7 +1713,7 @@ function active_sync_get_is_known_mail($user, $collection_id, $email_address)
 
 		foreach(array("Email1Address", "Email2Address", "Email3Address") as $token)
 			{
-			if(isset($data["Contacts"][$token]) === false)
+			if(! isset($data["Contacts"][$token]))
 				continue;
 
 			list($data_name, $data_mail) = active_sync_mail_parse_address($data["Contacts"][$token]);
@@ -1898,7 +1880,7 @@ function active_sync_get_need_folder_sync($request)
 
 	foreach($settings_server["SyncDat"] as $server_id => $server_data)
 		{
-		$known = 0;
+		$known = false;
 
 		foreach($settings_client["SyncDat"] as $client_id => $client_data)
 			{
@@ -1909,21 +1891,21 @@ function active_sync_get_need_folder_sync($request)
 				return(1);
 
 			if($server_data["DisplayName"] != $client_data["DisplayName"])
-				return(1);
+				return(true);
 
 			if($server_data["Type"] != $client_data["Type"])
-				return(1);
+				return(true);
 
 			if($server_data["ServerId"] == $client_data["ServerId"])
 				{
-				$known = 1;
+				$known = true;
 
 				break;
 				}
 			}
 
-		if($known == 0)
-			return(1);
+		if(! $known)
+			return(true);
 		}
 
 	################################################################################
@@ -1932,23 +1914,23 @@ function active_sync_get_need_folder_sync($request)
 
 	foreach($settings_client["SyncDat"] as $client_id => $client_data)
 		{
-		$known = 0;
+		$known = false;
 
 		foreach($settings_server["SyncDat"] as $server_id => $server_data)
 			{
 			if($client_data["ServerId"] == $server_data["ServerId"])
 				{
-				$known = 1;
+				$known = true;
 
 				break;
 				}
 			}
 
-		if($known == 0)
-			return(1);
+		if(! $known)
+			return(true);
 		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_get_need_provision($request)
@@ -1957,54 +1939,23 @@ function active_sync_get_need_provision($request)
 
 	$settings_client = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
-	if(isset($settings_server["Policy"]["PolicyKey"]) === false)
-		{
-		if(isset($settings_client["PolicyKey"]) === false)
-			return(0);
-
-		if(isset($settings_client["PolicyKey"]))
-			return(1);
-		}
-
-	if(isset($settings_server["Policy"]["PolicyKey"]))
-		{
-		if(isset($settings_client["PolicyKey"]) === false)
-			return(1);
-
-		if(isset($settings_client["PolicyKey"]))
-			{
-			if($settings_server["Policy"]["PolicyKey"] != $settings_client["PolicyKey"])
-				return(1);
-
-			if($settings_server["Policy"]["PolicyKey"] == $settings_client["PolicyKey"])
-				{
-				if($request["PolicyKey"] != 0)
-					{
-					if($request["PolicyKey"] != $settings_server["Policy"]["PolicyKey"])
-						return(1);
-
-					if($request["PolicyKey"] == $settings_server["Policy"]["PolicyKey"])
-						return(0);
-					}
-
-				if($request["PolicyKey"] == 0)
-					{
-					if($request["Cmd"] != "Ping")
-						return(1);
-
-					if($request["Cmd"] == "Ping")
-						return(0); # PolicyKey of Ping is always 0 ... policy was requested by device
-					}
-				}
-			}
-		}
+	if(! isset($settings_server["Policy"]["PolicyKey"]))
+		return(isset($settings_client["PolicyKey"]));
+	elseif(! isset($settings_client["PolicyKey"]))
+		return(true);
+	elseif($settings_server["Policy"]["PolicyKey"] != $settings_client["PolicyKey"])
+		return(true);
+	elseif($request["PolicyKey"] != 0)
+		return($request["PolicyKey"] != $settings_server["Policy"]["PolicyKey"]);
+	else
+		return($request["Cmd"] != "Ping");
 	}
 
 function active_sync_get_need_wipe($request)
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
-	return(isset($settings["Wipe"]) ? 1 : 0);
+	return(isset($settings["Wipe"]));
 	}
 
 function active_sync_get_parent_id_by_collection_id($user, $server_id)
@@ -2181,15 +2132,15 @@ function active_sync_get_table_method()
 	{
 	$table = array
 		(
-		"GET" => "active_sync_http_method_get", # used by web interface
-		"POST" => "active_sync_http_method_post",
-#		"PUT" => "active_sync_http_method_put",
-#		"PATCH" => "active_sync_http_method_patch",
-#		"DELETE" => "active_sync_http_method_delete",
-#		"HEAD" => "active_sync_http_method_read",
-		"OPTIONS" => "active_sync_http_method_options",
-#		"CONNECT" => "active_sync_http_method_connect",
-#		"TRACE" => "active_sync_http_method_trace"
+		"GET"		=> "active_sync_http_method_get", # used by web interface
+		"POST"		=> "active_sync_http_method_post",
+#		"PUT"		=> "active_sync_http_method_put",
+#		"PATCH"		=> "active_sync_http_method_patch",
+#		"DELETE"	=> "active_sync_http_method_delete",
+#		"HEAD"		=> "active_sync_http_method_read",
+		"OPTIONS"	=> "active_sync_http_method_options",
+#		"CONNECT"	=> "active_sync_http_method_connect",
+#		"TRACE"		=> "active_sync_http_method_trace"
 		);
 
 	return($table);
@@ -2384,18 +2335,19 @@ function active_sync_get_table_timezone_information()
 
 function active_sync_get_table_version()
 	{
-	$table = array();
-
-#	$table[] = "1.0";
-#	$table[] = "2.0";
-#	$table[] = "2.1";
-	$table[] = "2.5";	# LG-P920 depends on it
-	$table[] = "12.0";
-	$table[] = "12.1";
-	$table[] = "14.0";	# allow SMS on Email
-	$table[] = "14.1";	# allow SMS on Email
-#	$table[] = "16.0";	# allow SMS on Email
-#	$table[] = "16.1";	# allow SMS on Email, Find
+	$table = array
+		(
+#		"1.0",
+#		"2.0",
+#		"2.1",
+		"2.5",	# LG-P920 depends on it
+		"12.0",
+		"12.1",
+		"14.0",	# allow SMS on Email
+		"14.1",	# allow SMS on Email
+#		"16.0",	# allow SMS on Email
+#		"16.1",	# allow SMS on Email, Find
+		);
 
 	return($table);
 	}
@@ -2415,39 +2367,38 @@ function active_sync_get_version($type = 0)
 	{
 	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
-	$defaults = array
+	$retval = array
 		(
 		"name" => "AndSync",
 		"major" => 0,
 		"minor" => 0,
 		"revision" => 0,
-		"build" => 1,
+		"build" => 0,
 		"extension" => "",
 		"description" => ""
 		);
 
 	$changes = false;
 
-	foreach($defaults as $key => $value)
-		if(isset($settings["version"][$key]) === false)
+	foreach($retval as $key => $value)
+		if(! isset($settings["version"][$key]))
 			$changes = true;
 
-	foreach($defaults as $key => $value)
-		if(isset($settings["version"][$key]) === false)
-			$settings["version"][$key] = $defaults[$key];
+	foreach($retval as $key => $value)
+		if(! isset($settings["version"][$key]))
+			$settings["version"][$key] = $retval[$key];
 
-	foreach($defaults as $key => $value)
-		$defaults[$key] = $settings["version"][$key];
+	foreach($retval as $key => $value)
+		$retval[$key] = $settings["version"][$key];
 
 	if($changes)
 		active_sync_put_settings(DAT_DIR . "/login.data", $settings);
 
 	if($type == 0)
-		return(sprintf("%s %d.%d.%d-%d %s %s", $defaults["name"], $defaults["major"], $defaults["minor"], $defaults["revision"], $defaults["build"], $defaults["extension"], $defaults["description"]));
+		return(sprintf("%s %d.%d.%d-%d %s %s", $retval["name"], $retval["major"], $retval["minor"], $retval["revision"], $retval["build"], $retval["extension"], $retval["description"]));
 
 	if($type == 1)
-		return($defaults);
-
+		return($retval);
 	}
 
 function active_sync_namespace_to_string($namespace)
@@ -2469,17 +2420,18 @@ function active_sync_namespace_to_string($namespace)
 
 function active_sync_normalize_chars($string)
 	{
-	$table = array();
-
-	$table["a"] = "à á â ã ä å ā ă";
-	$table["c"] = "ç ć ĉ ċ č ḉ";
-	$table["e"] = "è é ê ë ē ĕ ė ę ě ḕ ḗ ḙ ḛ ḝ";
-	$table["i"] = "ì í î";
-	$table["o"] = "ò ó ô ö";
-	$table["s"] = "ß ś ŝ ș š";
-	$table["t"] = "ț ţ";
-	$table["u"] = "ù ú û ü ũ ū ŭ ű";
-	$table["z"] = "ź ż ž";
+	$table = array
+		(
+		"a" => "à á â ã ä å ā ă",
+		"c" => "ç ć ĉ ċ č ḉ",
+		"e" => "è é ê ë ē ĕ ė ę ě ḕ ḗ ḙ ḛ ḝ",
+		"i" => "ì í î",
+		"o" => "ò ó ô ö",
+		"s" => "ß ś ŝ ș š",
+		"t" => "ț ţ",
+		"u" => "ù ú û ü ũ ū ŭ ű",
+		"z" => "ź ż ž",
+		);
 
 	foreach($table as $char => $chars)
 		{
@@ -2489,46 +2441,6 @@ function active_sync_normalize_chars($string)
 
 	return($string);
 	}
-
-#	<Autodiscover>
-#		<Request>
-#			<EMailAddress>...</EMailAddress>
-#			<AcceptableResponseSchema>http://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006</AcceptableResponseSchema>
-#		</Request>
-#	</Autodiscover>
-
-#	<Autodiscover>
-#		<Response>
-#			<Culture>de:de</Culture>
-#			<User>
-#				<DisplayName>...</DisplayName>
-#				<EMailAddress>...</EMailAddress>
-#			</User>
-#			<Action>
-#				<Redirect>...</Redirect>
-#				<Settings>
-#					<Server>
-#						<Type>...</Type>
-#						<Url>...</Url>
-#						<Name>...</Name>
-#						<ServerData>...</ServerData>
-#					</Server>
-#				</Settings>
-#				<Error>
-#					<Status>...</Status>
-#					<Message>...</Message>
-#					<DebugData>...</DebugData>
-#					<ErrorCode>...</ErrorCode>
-#				</Error>
-#			</Action>
-#			<Error>
-#				<Status>...</Status>
-#				<Message>...</Message>
-#				<DebugData>...</DebugData>
-#				<ErrorCode>...</ErrorCode>
-#			</Error>
-#		</Response>
-#	</Autodiscover>
 
 #function active_sync_handle_autodiscover($request)
 #	{
@@ -2708,10 +2620,10 @@ function active_sync_handle_folder_sync($request)
 		$status = 1; # Success.
 		}
 
-	if(active_sync_get_need_wipe($request) != 0)
+	if(active_sync_get_need_wipe($request))
 		$status = 140;
 
-	if(active_sync_get_need_provision($request) != 0)
+	if(active_sync_get_need_provision($request))
 		{
 		$sync_key_new = $sync_key_new - 1;
 
@@ -2754,7 +2666,7 @@ function active_sync_handle_folder_sync($request)
 
 			foreach($settings_server["SyncDat"] as $settings_server_id => $settings_server_data)
 				{
-				$known = 0;
+				$known = false;
 
 				foreach($folders as $folders_id => $folders_data)
 					{
@@ -2781,10 +2693,10 @@ function active_sync_handle_folder_sync($request)
 						}
 
 					if($settings_server_data["ServerId"] == $folders_data["ServerId"])
-						$known = 1;
+						$known = true;
 					}
 
-				if($known == 0)
+				if(! $known)
 					{
 					$jobs["Add"][] = $settings_server_data;
 
@@ -2794,17 +2706,17 @@ function active_sync_handle_folder_sync($request)
 
 			foreach($folders as $folders_id => $folders_data)
 				{
-				$known = 0;
+				$known = false;
 
 				foreach($settings_server["SyncDat"] as $settings_server_id => $settings_server_data)
 					{
 					if($folders_data["ServerId"] != $settings_server_data["ServerId"])
 						continue;
 
-					$known = 1;
+					$known = true;
 					}
 
-				if($known == 0)
+				if(! $known)
 					{
 					$jobs["Delete"][] = $folders_data;
 
@@ -2817,7 +2729,7 @@ function active_sync_handle_folder_sync($request)
 			$count = 0;
 
 			foreach($actions as $action => $fields)
-				$count = $count + (isset($jobs[$action]) ? count($jobs[$action]) : 0);
+				$count += (isset($jobs[$action]) ? count($jobs[$action]) : 0);
 
 			$response->x_open("Changes");
 
@@ -2829,7 +2741,7 @@ function active_sync_handle_folder_sync($request)
 					{
 					foreach($actions as $action => $fields)
 						{
-						if(isset($jobs[$action]) === false)
+						if(! isset($jobs[$action]))
 							continue;
 
 						foreach($jobs[$action] as $job)
@@ -3008,37 +2920,35 @@ function active_sync_handle_get_item_estimate($request)
 							{
 							$data = active_sync_get_settings_data($request["AuthUser"], $collection_id, $server_id);
 
-							if(isset($data["AirSync"]["Class"]) === false)
+							if(! isset($data["AirSync"]["Class"]))
 								$data["AirSync"]["Class"] = $default_class;
 
 							$class = $default_class;
 							$filter_type = 0;
-							$class_found = 0;
+							$class_found = false;
 
 							if(isset($collection->Options))
-								{
 								foreach($collection->Options as $options)
 									{
-									if(isset($options->Class) === false)
-										$class = $default_class;
-									else
+									if(isset($options->Class))
 										$class = strval($options->Class); # only occurs on email/sms
+									else
+										$class = $default_class;
 
 									if($data["AirSync"]["Class"] != $class)
 										continue;
 
-									if(isset($options->FilterType) === false)
-										$filter_type = 0;
-									else
+									if(isset($options->FilterType))
 										$filter_type = intval($options->FilterType); # only occurs on email/sms
+									else
+										$filter_type = 0;
 
-									$class_found = 1;
+									$class_found = true;
 									}
-								}
 
-							if($class_found == 0)
+							if(! $class_found)
 								{
-								if(isset($settings_client["SyncDat"][$server_id]) === false)
+								if(! isset($settings_client["SyncDat"][$server_id]))
 									$settings_client["SyncDat"][$server_id] = "*";
 								elseif($settings_client["SyncDat"][$server_id] == "*")
 									{
@@ -3054,14 +2964,14 @@ function active_sync_handle_get_item_estimate($request)
 
 							if($filter_type == 0)
 								{
-								if(isset($settings_client["SyncDat"][$server_id]) === false)
+								if(! isset($settings_client["SyncDat"][$server_id]))
 									$jobs["Add"][] = $server_id;
 								elseif($settings_client["SyncDat"][$server_id] == "*")
 									$jobs["Add"][] = $server_id;
 								elseif($settings_client["SyncDat"][$server_id] != $settings_server["SyncDat"][$server_id])
 									$jobs["Change"][] = $server_id;
 
-								$class_found = 1;
+								$class_found = true;
 								}
 
 							if(($filter_type > 0) && ($filter_type < 8))
@@ -3085,7 +2995,7 @@ function active_sync_handle_get_item_estimate($request)
 								if($default_class == "Tasks")
 									$timestamp = strtotime($data["Tasks"]["DateCompleted"]);
 
-								if(isset($settings_client["SyncDat"][$server_id]) === false)
+								if(! isset($settings_client["SyncDat"][$server_id]))
 									{
 									if($timestamp < $stat_filter)
 										$jobs["SoftDelete"][] = $server_id;
@@ -3116,7 +3026,7 @@ function active_sync_handle_get_item_estimate($request)
 
 							if($filter_type == 8)
 								{
-								if(isset($settings_client["SyncDat"][$server_id]) === false)
+								if(! isset($settings_client["SyncDat"][$server_id]))
 									{
 									if($data["Tasks"]["Complete"] == 1)
 										$jobs["SoftDelete"][] = $server_id;
@@ -3141,22 +3051,14 @@ function active_sync_handle_get_item_estimate($request)
 							}
 
 						foreach($settings_client["SyncDat"] as $server_id => $timestamp)
-							{
-							if(isset($settings_server["SyncDat"][$server_id]))
-								continue;
-
-							$jobs["Delete"][] = $server_id;
-							}
+							if(! isset($settings_server["SyncDat"][$server_id]))
+								$jobs["Delete"][] = $server_id;
 
 						$estimate = 0;
 
 						foreach(array("Add", "Change", "Delete", "SoftDelete") as $command)
-							{
-							if(isset($jobs[$command]) === false)
-								continue;
-
-							$estimate = $estimate + count($jobs[$command]);
-							}
+							if(isset($jobs[$command]))
+								$estimate += count($jobs[$command]);
 
 						$response->x_open("Collection");
 
@@ -3254,10 +3156,10 @@ function active_sync_handle_item_operations($request)
 				$response->x_open("Response");
 					$response->x_open("Fetch");
 
-						if(isset($data["File"][$reference]) === false)
-							$status = 15; # Attachment fetch provider - Attachment or attachment ID is invalid.
-						else
+						if(isset($data["File"][$reference]))
 							$status = 1;
+						else
+							$status = 15; # Attachment fetch provider - Attachment or attachment ID is invalid.
 
 						$response->x_switch("ItemOperations");
 
@@ -3301,7 +3203,7 @@ function active_sync_handle_item_operations($request)
 
 												foreach(active_sync_get_default_rights_management() as $token => $value)
 													{
-													if(isset($data["RightsManagement"][$token]) === false)
+													if(! isset($data["RightsManagement"][$token]))
 														continue;
 
 													if(strlen($data["RightsManagement"][$token]) == 0)
@@ -3369,7 +3271,7 @@ function active_sync_handle_item_operations($request)
 
 							foreach(array("Email", "Email2") as $codepage)
 								{
-								if(isset($data[$codepage]) === false)
+								if(! isset($data[$codepage]))
 									continue;
 
 								$response->x_switch($codepage);
@@ -3441,7 +3343,7 @@ function active_sync_handle_item_operations($request)
 
 														foreach(active_sync_get_default_rights_management() as $token => $value)
 															{
-															if(isset($data["RightsManagement"][$token]) === false)
+															if(! isset($data["RightsManagement"][$token]))
 																continue;
 
 															if(strlen($data["RightsManagement"][$token]) == 0)
@@ -3463,7 +3365,7 @@ function active_sync_handle_item_operations($request)
 											{
 											foreach($data["Body"] as $random_body_id => $null) # !!!
 												{
-												if(isset($data["Body"][$random_body_id]["Type"]) === false)
+												if(! isset($data["Body"][$random_body_id]["Type"]))
 													continue;
 
 												if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
@@ -3476,7 +3378,7 @@ function active_sync_handle_item_operations($request)
 													if(isset($preference["Preview"]))
 														foreach($data["Body"] as $random_preview_id => $null) # !!!
 															{
-															if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+															if(! isset($data["Body"][$random_preview_id]["Type"]))
 																continue;
 
 															if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -3489,7 +3391,7 @@ function active_sync_handle_item_operations($request)
 
 													if(isset($preference->TruncationSize))
 														if(intval($preference->TruncationSize) != 0)
-															if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
+															if(! isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
 																{
 																$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
@@ -3583,12 +3485,8 @@ function active_sync_handle_meeting_response($request)
 			list($organizer_name, $organizer_mail) = active_sync_mail_parse_address($data["Meeting"]["Email"]["Organizer"]);
 
 			foreach(array("OrganizerName" => $organizer_name, "OrganizerEmail" => $organizer_mail) as $token => $value)
-				{
-				if($value == "")
-					continue;
-
-				$calendar["Calendar"][$token] = $value;
-				}
+				if($value != "")
+					$calendar["Calendar"][$token] = $value;
 
 			$calendar["Calendar"]["MeetingStatus"] = 3;
 
@@ -3622,21 +3520,11 @@ function active_sync_handle_meeting_response($request)
 			$description[] = "*~*~*~*~*~*~*~*~*~*";
 
 			if(isset($data["Body"]))
-				{
 				foreach($data["Body"] as $body)
-					{
-					if(isset($body["Type"]) === false)
-						continue;
-
-					if($body["Type"] != 1)
-						continue;
-
-					if(isset($body["Data"]) === false)
-						continue;
-
-					$description[] = $body["Data"];
-					}
-				}
+					if(isset($body["Type"]))
+						if($body["Type"] == 1)
+							if(isset($body["Data"]))
+								$description[] = $body["Data"];
 
 			$mime = array();
 
@@ -3644,12 +3532,8 @@ function active_sync_handle_meeting_response($request)
 			$mime[] = "To: " . $data["Email"]["From"];
 
 			foreach(array("Accepted" => 1, "Tentative" => 2, "Declined" => 3) as $subject => $value)
-				{
-				if($user_response != $value)
-					continue;
-
-				$mime[] = "Subject: " . $subject . ": " . $data["Email"]["Subject"];
-				}
+				if($user_response == $value)
+					$mime[] = "Subject: " . $subject . ": " . $data["Email"]["Subject"];
 
 			$mime[] = "Content-Type: multipart/alternative; boundary=\"" . $boundary . "\"";
 			$mime[] = "";
@@ -3660,12 +3544,8 @@ function active_sync_handle_meeting_response($request)
 			$mime[] = "";
 
 			foreach(array("Accepted" => 1, "Tentative" => 2, "Declined" => 3) as $message => $value)
-				{
-				if($user_response != $value)
-					continue;
-
-				$mime[] = $message;
-				}
+				if($user_response == $value)
+					$mime[] = $message;
 
 			$mime[] = "";
 			$mime[] = "--" . $boundary;
@@ -3691,20 +3571,12 @@ function active_sync_handle_meeting_response($request)
 					$mime[] = "DESCRIPTION:" . implode("\\n", $description);
 
 					foreach(array("FALSE" => 0, "TRUE" => 1) as $key => $value)
-						{
-						if($data["Meeting"]["Email"]["AllDayEvent"] != $value)
-							continue;
-
-						$mime[] = "X-MICROSOFT-CDO-ALLDAYEVENT:" . $key;
-						}
+						if($data["Meeting"]["Email"]["AllDayEvent"] == $value)
+							$mime[] = "X-MICROSOFT-CDO-ALLDAYEVENT:" . $key;
 
 					foreach(array("ACCEPTED" => 1, "TENTATIVE" => 2, "DECLINED" => 3) as $partstat => $value)
-						{
-						if($user_response != $value)
-							continue;
-
-						$mime[] = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=" . $partstat . ";RSVP=TRUE:MAILTO:" . $user . "@" . $host;
-						}
+						if($user_response == $value)
+							$mime[] = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=" . $partstat . ";RSVP=TRUE:MAILTO:" . $user . "@" . $host;
 
 					list($organizer_name, $organizer_mail) = active_sync_mail_parse_address($data["Meeting"]["Email"]["Organizer"]);
 
@@ -3774,13 +3646,13 @@ function active_sync_handle_move_items($request)
 				$src_fld_id = strval($move->SrcFldId);
 				$dst_fld_id = strval($move->DstFldId);
 
-				if(is_dir(DAT_DIR . "/" . $request["AuthUser"] . "/" . $src_fld_id) === false)
+				if(! is_dir(DAT_DIR . "/" . $request["AuthUser"] . "/" . $src_fld_id))
 					$status = 1; # Invalid source collection ID or invalid source Item ID.
-				elseif(file_exists(DAT_DIR . "/" . $request["AuthUser"] . "/" . $src_fld_id . "/" . $src_msg_id . ".data") === false)
+				elseif(! file_exists(DAT_DIR . "/" . $request["AuthUser"] . "/" . $src_fld_id . "/" . $src_msg_id . ".data"))
 					$status = 1; # Invalid source collection ID or invalid source Item ID.
 				elseif(count($move->DstFldId) > 1)
 					$status = 5; # One of the following failures occurred: the item cannot be moved to more than one item at a time, or the source or destination item was locked.
-				elseif(is_dir(DAT_DIR . "/" . $request["AuthUser"] . "/" . $dst_fld_id) === false)
+				elseif(! is_dir(DAT_DIR . "/" . $request["AuthUser"] . "/" . $dst_fld_id))
 					$status = 2; # Invalid destination collection ID.
 				elseif($src_fld_id == $dst_fld_id)
 					$status = 4; # Source and destination collection IDs are the same.
@@ -3791,10 +3663,10 @@ function active_sync_handle_move_items($request)
 					$src = DAT_DIR . "/" . $request["AuthUser"] . "/" . $src_fld_id . "/" . $src_msg_id . ".data";
 					$dst = DAT_DIR . "/" . $request["AuthUser"] . "/" . $dst_fld_id . "/" . $dst_msg_id . ".data";
 
-					if(rename($src, $dst) === false)
-						$status = 7; # Source or destination item was locked.
-					else
+					if(rename($src, $dst))
 						$status = 3; # Success.
+					else
+						$status = 7; # Source or destination item was locked.
 					}
 
 				$response->x_open("Response");
@@ -3824,8 +3696,6 @@ function active_sync_handle_ping($request)
 	else
 		$xml = active_sync_wbxml_request_parse_b($request["wbxml"]);
 
-	$test = $xml->asXML(); $test = active_sync_wbxml_pretty($test); file_put_contents(LOG_DIR . "/test-before.txt", $test);
-
 	if(isset($xml->HeartbeatInterval))
 		{
 		unset($settings["HeartbeatInterval"]);
@@ -3839,12 +3709,11 @@ function active_sync_handle_ping($request)
 
 		foreach($xml->Folders->Folder as $folder)
 			{
-			$z = array();
-
-			$z["Id"] = strval($folder->Id);
-			$z["Class"] = strval($folder->Class);
-
-			$settings["Ping"][] = $z;
+			$settings["Ping"][] = array
+				(
+				"Id" => strval($folder->Id),
+				"Class" => strval($folder->Class)
+				);
 			}
 		}
 
@@ -3854,7 +3723,8 @@ function active_sync_handle_ping($request)
 
 		$x = $xml->addChild("HeartbeatInterval", $settings["HeartbeatInterval"]);
 		}
-	else
+
+	if(isset($settings["Ping"]))
 		{
 		unset($xml->Folders);
 
@@ -3869,8 +3739,7 @@ function active_sync_handle_ping($request)
 			}
 		}
 
-	$test = $xml->asXML(); $test = active_sync_wbxml_pretty($test); file_put_contents(LOG_DIR . "/test-after.txt", $test);
-
+	# store current port to be able to detect connection changes
 	$settings["Port"] = (isset($_SERVER["REMOTE_PORT"]) ? $_SERVER["REMOTE_PORT"] : "i");
 
 	active_sync_put_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync", $settings);
@@ -3884,28 +3753,28 @@ function active_sync_handle_ping($request)
 
 	while(1)
 		{
-		if(active_sync_get_need_wipe($request) != 0)
+		if(active_sync_get_need_wipe($request))
 			{
 			$status = 7; # Folder hierarchy sync required.
 
 			break;
 			}
 
-		if(active_sync_get_need_provision($request) != 0)
+		if(active_sync_get_need_provision($request))
 			{
 			$status = 7; # Folder hierarchy sync required.
 
 			break;
 			}
 
-		if(active_sync_get_need_folder_sync($request) != 0)
+		if(active_sync_get_need_folder_sync($request))
 			{
 			$status = 7; # Folder hierarchy sync required.
 
 			break;
 			}
 
-		if(isset($xml->Folders) === false)
+		if(! isset($xml->Folders))
 			{
 			$status = 3; # The Ping command request omitted required parameters.
 
@@ -3919,7 +3788,7 @@ function active_sync_handle_ping($request)
 			break;
 			}
 
-		if(isset($xml->HeartbeatInterval) === false)
+		if(! isset($xml->HeartbeatInterval))
 			{
 			$status = 3; # The Ping command request omitted required parameters.
 
@@ -3953,7 +3822,7 @@ function active_sync_handle_ping($request)
 
 		foreach($xml->Folders->Folder as $folder)
 			{
-			$changes_detected = 0;
+			$changes_detected = false;
 			$collection_id = strval($folder->Id);
 
 			$settings_client = active_sync_get_settings_sync($request["AuthUser"], $collection_id, $request["DeviceId"]);
@@ -3961,44 +3830,41 @@ function active_sync_handle_ping($request)
 			$settings_server = active_sync_get_settings_sync($request["AuthUser"], $collection_id, "");
 
 			if($settings_client["SyncKey"] == 0)
-				$changes_detected = 1;
+				$changes_detected = true;
 
 			foreach($settings_server["SyncDat"] as $server_id => $null)
 				{
-				if($changes_detected == 1)
+				if($changes_detected)
 					continue;
 
-				if(isset($settings_client["SyncDat"][$server_id]) === false)
-					$changes_detected = 1;
+				if(! isset($settings_client["SyncDat"][$server_id]))
+					$changes_detected = true;
 
-				if($changes_detected == 1)
+				if($changes_detected)
 					break;
 
 				if($settings_client["SyncDat"][$server_id] == "*")
 					continue;
 
-				if($changes_detected == 1)
-					break;
-
 				if($settings_client["SyncDat"][$server_id] != $settings_server["SyncDat"][$server_id])
-					$changes_detected = 1;
+					$changes_detected = true;
 
-				if($changes_detected == 1)
+				if($changes_detected)
 					break;
 				}
 
 			foreach($settings_client["SyncDat"] as $server_id => $null)
 				{
-				if($changes_detected == 1)
+				if($changes_detected)
 					continue;
 
 				if(isset($settings_server["SyncDat"][$server_id]))
 					continue;
 
-				$changes_detected = 1;
+				$changes_detected = true;
 				}
 
-			if($changes_detected == 0)
+			if(! $changes_detected)
 				continue;
 
 			$changed_folders[] = $collection_id;
@@ -4013,7 +3879,8 @@ function active_sync_handle_ping($request)
 
 		$settings = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
-		if((isset($settings["Port"]) === false ? "n" : $settings["Port"]) != (isset($_SERVER["REMOTE_PORT"]) === false ? "s" : $_SERVER["REMOTE_PORT"]))
+		# check if stored port is different. if yes, there is already a newer connection
+		if((isset($settings["Port"]) ? $settings["Port"]: "n") != (isset($_SERVER["REMOTE_PORT"]) ? $_SERVER["REMOTE_PORT"] : "s"))
 			{
 			$status = 8; # An error occurred on the server.
 
@@ -4087,12 +3954,8 @@ function active_sync_handle_provision($request)
 				$info = active_sync_get_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync");
 
 				foreach(active_sync_get_default_info() as $token)
-					{
-					if(isset($xml->DeviceInformation->Set->$token) === false)
-						continue;
-
-					$info["DeviceInformation"][$token] = strval($xml->DeviceInformation->Set->$token);
-					}
+					if(isset($xml->DeviceInformation->Set->$token))
+						$info["DeviceInformation"][$token] = strval($xml->DeviceInformation->Set->$token);
 
 				active_sync_put_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync", $info);
 
@@ -4131,21 +3994,21 @@ function active_sync_handle_provision($request)
 
 			active_sync_put_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync", $settings_client);
 
-			if(isset($xml->Policies->Policy) === false)
+			if(! isset($xml->Policies->Policy))
 				$status = 3; # Unknown PolicyType value.
-			elseif(isset($xml->Policies->Policy->PolicyType) === false)
+			elseif(! isset($xml->Policies->Policy->PolicyType))
 				$status = 3; # Unknown PolicyType value.
 			elseif(strval($xml->Policies->Policy->PolicyType) != "MS-EAS-Provisioning-WBXML")
 				$status = 3; # Unknown PolicyType value.
-			elseif(isset($xml->Policies->Policy->Status) === false)
+			elseif(! isset($xml->Policies->Policy->Status))
 				{
-				if(isset($settings_server["Policy"]["PolicyKey"]) === false)
+				if(! isset($settings_server["Policy"]["PolicyKey"]))
 					{
 					$show_empty = 1;
 
 					$status = 1; # There is no policy for this client.
 					}
-				elseif(isset($settings_server["Policy"]["Data"]) === false)
+				elseif(! isset($settings_server["Policy"]["Data"]))
 					{
 					$show_empty = 1;
 
@@ -4164,7 +4027,7 @@ function active_sync_handle_provision($request)
 				$status = 1; # Success.
 			elseif(intval($xml->Policies->Policy->Status) == 2)
 				$status = 1; # Success.
-			elseif(isset($xml->Policies->Policy->PolicyKey) === false)
+			elseif(! isset($xml->Policies->Policy->PolicyKey))
 				$status = 5; # The client is acknowledging the wrong policy key.
 			elseif(strval($xml->Policies->Policy->PolicyKey) != $settings_server["Policy"]["PolicyKey"])
 				$status = 5; # The client is acknowledging the wrong policy key.
@@ -4202,7 +4065,7 @@ function active_sync_handle_provision($request)
 
 								foreach(array("ApprovedApplicationList" => "Hash", "UnapprovedInROMApplicationList" => "ApplicationName") as $k => $v)
 									{
-									if(isset($settings_server["Policy"]["Data"][$k]) === false)
+									if(! isset($settings_server["Policy"]["Data"][$k]))
 										continue;
 
 									$response->x_open($k);
@@ -4222,7 +4085,7 @@ function active_sync_handle_provision($request)
 									if($token == "ApprovedApplicationList" || $token == "UnapprovedInROMApplicationList")
 										continue;
 
-									if(isset($settings_server["Policy"]["Data"][$token]) === false)
+									if(! isset($settings_server["Policy"]["Data"][$token]))
 										continue;
 
 									$response->x_open($token);
@@ -4249,9 +4112,9 @@ function active_sync_handle_provision($request)
 			{
 			$remote_wipe = 0;
 
-			if(isset($xml->RemoteWipe) === false)
+			if(! isset($xml->RemoteWipe))
 				$status = 1; # The client remote wipe was sucessful.
-			elseif(isset($xml->RemoteWipe->Status) === false)
+			elseif(! isset($xml->RemoteWipe->Status))
 				{
 				$remote_wipe = ACTIVE_SYNC_ACCOUNT_ONLY_REMOTE_WIPE;
 
@@ -4304,7 +4167,7 @@ function active_sync_handle_provision_remote_wipe($request)
 
 	foreach($users as $user_id => $user_data)
 		{
-		if(is_dir(DAT_DIR . "/" . $user_data["User"]) === false)
+		if(! is_dir(DAT_DIR . "/" . $user_data["User"]))
 			continue;
 
 		$folders = active_sync_get_settings(DAT_DIR . "/" . $user_data["User"] . ".sync");
@@ -4341,7 +4204,7 @@ function active_sync_handle_resolve_recipients($request)
 
 	$recipients = array();
 
-	if(isset($xml->To) === false)
+	if(! isset($xml->To))
 		$status = 5;
 	elseif(count($xml->To) > 100)
 		$status = 5;
@@ -4362,7 +4225,7 @@ function active_sync_handle_resolve_recipients($request)
 
 					foreach(array("Email1Address", "Email2Address", "Email3Address") as $token)
 						{
-						if(isset($data["Contacts"][$token]) === false)
+						if(! isset($data["Contacts"][$token]))
 							continue;
 
 						if(strlen($data["Contacts"][$token]) == 0)
@@ -4418,13 +4281,13 @@ function active_sync_handle_resolve_recipients($request)
 							$response->x_close($field);
 							}
 
-						if(isset($xml->Options->Availability) === false)
+						if(! isset($xml->Options->Availability))
 							{
 							}
-						elseif(isset($xml->Options->Availability->StartTime) === false)
+						elseif(! isset($xml->Options->Availability->StartTime))
 							{
 							}
-						elseif(isset($xml->Options->Availability->EndTime) === false)
+						elseif(! isset($xml->Options->Availability->EndTime))
 							{
 							}
 						elseif(((strtotime($xml->Options->Availability->EndTime) - strtotime($xml->Options->Availability->StartTime)) / 1800) > 32768)
@@ -4460,7 +4323,7 @@ function active_sync_handle_resolve_recipients($request)
 										continue;
 
 									foreach(array("EndTime" => 0, "StartTime" => 0, "BusyStatus" => 0) as $token => $value)
-										$data["Calendar"][$token] = (isset($data["Calendar"][$token]) === false ? $value : $data["Calendar"][$token]);
+										$data["Calendar"][$token] = (isset($data["Calendar"][$token]) ? $data["Calendar"][$token] : $value);
 
 									foreach(array("EndTime" => 0, "StartTime" => 0) as $token => $value)
 										$data["Calendar"][$token] = date("Y-m-d\TH:i:s\Z", strtotime($data["Calendar"][$token]));
@@ -4490,13 +4353,13 @@ function active_sync_handle_resolve_recipients($request)
 							$response->x_close("Availability");
 							}
 
-						if(isset($xml->Options->CertificateRetrieval) === false)
+						if(! isset($xml->Options->CertificateRetrieval))
 							{
 							}
 						elseif(intval($xml->Options->CertificateRetrieval) == 1) # Do not retrieve certificates for the recipient (default).
 							{
 							}
-						elseif(file_exists(CRT_DIR . "/certs/" . $recipient["EmailAddress"] . ".pem") === false)
+						elseif(! file_exists(CRT_DIR . "/certs/" . $recipient["EmailAddress"] . ".pem"))
 							{
 							$response->x_open("Certificates");
 
@@ -4592,11 +4455,11 @@ function active_sync_handle_search($request)
 
 	$response->x_open("Search");
 
-		if(isset($xml->Store) === false)
+		if(! isset($xml->Store))
 			$status = 3; # Server error.
-		elseif(isset($xml->Store->Name) === false)
+		elseif(! isset($xml->Store->Name))
 			$status = 3; # Server error.
-		elseif(isset($xml->Store->Query) === false)
+		elseif(! isset($xml->Store->Query))
 			$status = 3; # Server error.
 		else
 			$status = 1; # Server error.
@@ -4608,9 +4471,9 @@ function active_sync_handle_search($request)
 		$response->x_open("Response");
 			$response->x_open("Store");
 
-				if(isset($xml->Store) === false)
+				if(! isset($xml->Store))
 					$status = 3; # Server error.
-				elseif(isset($xml->Store->Name) === false)
+				elseif(! isset($xml->Store->Name))
 					$status = 3; # Server error.
 				elseif(strval($xml->Store->Name) == "GAL")
 					$status = 1; # Ok.
@@ -4651,7 +4514,7 @@ function active_sync_handle_search($request)
 
 							foreach(array("Email1Address", "Email2Address", "Email3Address") as $token)
 								{
-								if(isset($data["Contacts"][$token]) === false)
+								if(! isset($data["Contacts"][$token]))
 									continue;
 
 								if(strlen($data["Contacts"][$token]) == 0)
@@ -4664,7 +4527,7 @@ function active_sync_handle_search($request)
 
 							foreach(array("Email1Address", "Email2Address", "Email3Address", "FirstName", "LastName", "MiddleName") as $token)
 								{
-								if(isset($data["Contacts"][$token]) === false)
+								if(! isset($data["Contacts"][$token]))
 									continue;
 
 								if(strtolower(substr($data["Contacts"][$token], 0, strlen($query))) != strtolower($query))
@@ -4679,10 +4542,10 @@ function active_sync_handle_search($request)
 
 					usort($retval, function($a, $b){return($a["FileAs"] - $b["FileAs"]);});
 
-					if(isset($xml->Store->Options->Range) === false)
-						$range = "0-99"; # default is written to 100 results somewhere ... really
-					else
+					if(isset($xml->Store->Options->Range))
 						$range = strval($xml->Store->Options->Range);
+					else
+						$range = "0-99"; # default is written to 100 results somewhere ... really
 
 					list($m, $n) = explode("-", $range);
 
@@ -4705,7 +4568,7 @@ function active_sync_handle_search($request)
 
 								foreach(array("DisplayName" => "FileAs", "Title" => "Title", "Company" => "CompanyName", "Alias" => "Alias", "FirstName" => "FirstName", "LastName" => "LastName", "MobilePhone" => "MobilePhoneNumber", "EmailAddress" => "Email1Address") as $token_gal => $token_contact)
 									{
-									if(isset($data[$token_contact]) === false)
+									if(! isset($data[$token_contact]))
 										continue;
 
 									if(strlen($data[$token_contact]) == 0)
@@ -4716,15 +4579,15 @@ function active_sync_handle_search($request)
 									$response->x_close($token_gal);
 									}
 
-								if(isset($data["Picture"]) === false)
+								if(! isset($data["Picture"]))
 									$status = 173;
 								elseif(strlen($data["Picture"]) == 0)
 									$status = 173;
-								elseif(isset($xml->Store->Options->Picture->MaxSize) === false)
+								elseif(! isset($xml->Store->Options->Picture->MaxSize))
 									$status = 1;
 								elseif(intval($xml->Store->Options->Picture->MaxSize) < strlen($data["Picture"]))
 									$status = 174;
-								elseif(isset($xml->Store->Options->Picture->MaxPicture) === false)
+								elseif(! isset($xml->Store->Options->Picture->MaxPicture))
 									$status = 1;
 								elseif(intval($xml->Store->Options->Picture->MaxPicture) < $p)
 									$status = 175;
@@ -4779,29 +4642,29 @@ function active_sync_handle_search($request)
 
 					foreach(glob(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/*.data") as $file)
 						{
-						if(isset($xml->Store->Query->And->GreaterThan) === false)
+						if(! isset($xml->Store->Query->And->GreaterThan))
 							continue;
 
-						if(isset($xml->Store->Query->And->GreaterThan->DateReceived) === false) # empty but existing value
+						if(! isset($xml->Store->Query->And->GreaterThan->DateReceived)) # empty but existing value
 							continue;
 
-						if(isset($xml->Store->Query->And->GreaterThan->Value) === false)
+						if(! isset($xml->Store->Query->And->GreaterThan->Value))
 							continue;
 
-						if(isset($xml->Store->Query->And->LessThan) === false)
+						if(! isset($xml->Store->Query->And->LessThan))
 							continue;
 
-						if(isset($xml->Store->Query->And->LessThan->DateReceived) === false) # empty but existing value
+						if(! isset($xml->Store->Query->And->LessThan->DateReceived)) # empty but existing value
 							continue;
 
-						if(isset($xml->Store->Query->And->LessThan->Value) === false)
+						if(! isset($xml->Store->Query->And->LessThan->Value))
 							continue;
 
 						$server_id = basename($file, ".data");
 
 						$data = active_sync_get_settings_data($request["AuthUser"], $collection_id, $server_id);
 
-						if(isset($data["AirSync"]["Class"]) === false)
+						if(! isset($data["AirSync"]["Class"]))
 							{
 							}
 						elseif($data["AirSync"]["Class"] != $class)
@@ -4819,10 +4682,10 @@ function active_sync_handle_search($request)
 						$retval[] = $data;
 						}
 
-					if(isset($xml->Store->Options->Range) === false)
-						$range = "0-99";
-					else
+					if(isset($xml->Store->Options->Range))
 						$range = strval($xml->Store->Options->Range);
+					else
+						$range = "0-99";
 
 					list($m, $n) = explode("-", $range);
 
@@ -5023,11 +4886,9 @@ function active_sync_handle_send_mail_fix_android($request)
 	# 0xFF 0x00      -> 1 1111111 0 0000000           ->            0011 1111 1000 0000 -> 0x3F 0x80      -> 16256
 	# 0xFF 0x00 0x00 -> 1 1111111 0 0000000 0 0000000 -> 00001 1111 1100 0000 0000 0000 -> 0x1F 0xC0 0x00 -> 2080768
 
-	if($request["DeviceType"] != "SAMSUNGGTS6802")
-		{
-		}
-	elseif(preg_match("/(.*\x50\xC3.?)(\x44\x61\x74\x65\x3A\x20.*)/", $request["wbxml"], $matches) == 1)
-		$request["wbxml"] = $matches[1] . "\x00" . $matches[2];
+	if($request["DeviceType"] == "SAMSUNGGTS6802")
+		if(preg_match("/(.*\x50\xC3.?)(\x44\x61\x74\x65\x3A\x20.*)/", $request["wbxml"], $matches) == 1)
+			$request["wbxml"] = $matches[1] . "\x00" . $matches[2];
 
 	return($request);
 	}
@@ -5075,20 +4936,17 @@ function active_sync_handle_settings($request)
 						$response->x_open("Get");
 
 							if(isset($settings["OOF"]))
-								{
 								foreach(array("OofState", "StartTime", "EndTime") as $token)
 									{
-									if(isset($settings["OOF"][$token]) === false)
+									if(! isset($settings["OOF"][$token]))
 										continue;
 
 									$response->x_open($token);
 										$response->x_print($settings["OOF"][$token]);
 									$response->x_close($token);
 									}
-								}
 
 							if(isset($settings["OOF"]["OofMessage"]))
-								{
 								foreach($settings["OOF"]["OofMessage"] as $oof_message)
 									{
 									$response->x_open("OofMessage");
@@ -5109,7 +4967,6 @@ function active_sync_handle_settings($request)
 
 									$response->x_close("OofMessage");
 									}
-								}
 
 						$response->x_close("Get");
 						}
@@ -5122,7 +4979,7 @@ function active_sync_handle_settings($request)
 
 						foreach(array("OofState", "StartTime", "EndTime") as $token)
 							{
-							if(isset($xml->Oof->Set->$token) === false)
+							if(! isset($xml->Oof->Set->$token))
 								continue;
 
 							$settings["OOF"][$token] = strval($xml->Oof->Set->$token);
@@ -5137,12 +4994,8 @@ function active_sync_handle_settings($request)
 								$data = array();
 
 								foreach(array("AppliesToInternal", "AppliesToExternalKnown", "AppliesToExternalUnknown", "Enabled", "ReplyMessage", "BodyType") as $token)
-									{
-									if(isset($oof_message->$token) === false)
-										continue;
-
-									$data[$token] = strval($oof_message->$token);
-									}
+									if(isset($oof_message->$token))
+										$data[$token] = strval($oof_message->$token);
 
 								$settings["OOF"]["OofMessage"][] = $data;
 								}
@@ -5168,7 +5021,7 @@ function active_sync_handle_settings($request)
 
 			if($status == 1)
 				{
-				if(isset($xml->DevicePassword->Set->Password) === false)
+				if(! isset($xml->DevicePassword->Set->Password))
 					$status = 2; # Protocol error.
 				elseif(strlen(strval($xml->DevicePassword->Set->Password)) == 0)
 					$status = 2; # Protocol error.
@@ -5211,7 +5064,7 @@ function active_sync_handle_settings($request)
 
 				foreach(active_sync_get_default_info() as $token => $value)
 					{
-					if(isset($xml->DeviceInformation->Set->$token) === false)
+					if(! isset($xml->DeviceInformation->Set->$token))
 						continue;
 
 					$settings["DeviceInformation"][$token] = strval($xml->DeviceInformation->Set->$token);
@@ -5220,9 +5073,7 @@ function active_sync_handle_settings($request)
 					}
 
 				if($status == 1)
-					{
 					active_sync_put_settings(DAT_DIR . "/" . $request["AuthUser"] . "/" . $request["DeviceId"] . ".sync", $settings);
-					}
 
 				$response->x_open("DeviceInformation");
 					$response->x_open("Status");
@@ -5287,7 +5138,7 @@ function active_sync_handle_settings($request)
 				{
 				$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
-				if(isset($settings["RightsManagementTemplates"]) === false)
+				if(! isset($settings["RightsManagementTemplates"]))
 					$status = 168;
 				else
 					$status = 1; # Protocol error.
@@ -5484,7 +5335,7 @@ function active_sync_handle_sync($request)
 	# check HeartbeatInterval
 	################################################################################
 
-	if(isset($xml->HeartbeatInterval) === false)
+	if(! isset($xml->HeartbeatInterval))
 		{
 		$heartbeat_interval = 0;
 		$limit = 0;
@@ -5511,7 +5362,7 @@ function active_sync_handle_sync($request)
 	# check Wait
 	################################################################################
 
-	if(isset($xml->Wait) === false)
+	if(! isset($xml->Wait))
 		{
 		$wait = 0;
 		$limit = 0;
@@ -5536,7 +5387,7 @@ function active_sync_handle_sync($request)
 	# check WindowSize (global)
 	################################################################################
 
-	if(isset($xml->WindowSize) === false)
+	if(! isset($xml->WindowSize))
 		$window_size_global = 100;
 	elseif(intval($xml->WindowSize) == 0)
 		$window_size_global = 512;
@@ -5549,10 +5400,10 @@ function active_sync_handle_sync($request)
 	# check if Collections exist
 	################################################################################
 
-	if(isset($xml->Collections) === false)
-		$status = 4; # Protocol error.
-	else
+	if(isset($xml->Collections))
 		$status = 1; # Success.
+	else
+		$status = 4; # Protocol error.
 
 	################################################################################
 	# check if HeartbeatInterval and Wait exist
@@ -5583,7 +5434,7 @@ function active_sync_handle_sync($request)
 	################################################################################
 
 	if($status == 1)
-		if(active_sync_get_need_wipe($request) != 0)
+		if(active_sync_get_need_wipe($request))
 			$status = 12; # The folder hierarchy has changed.
 
 	################################################################################
@@ -5591,7 +5442,7 @@ function active_sync_handle_sync($request)
 	################################################################################
 
 	if($status == 1)
-		if(active_sync_get_need_provision($request) != 0)
+		if(active_sync_get_need_provision($request))
 			$status = 12; # The folder hierarchy has changed.
 
 	################################################################################
@@ -5599,7 +5450,7 @@ function active_sync_handle_sync($request)
 	################################################################################
 
 	if($status == 1)
-		if(active_sync_get_need_folder_sync($request) != 0)
+		if(active_sync_get_need_folder_sync($request))
 			$status = 12; # The folder hierarchy has changed.
 
 	################################################################################
@@ -5662,21 +5513,8 @@ function active_sync_handle_sync($request)
 						$sync_key	= strval($collection->SyncKey);
 						$collection_id	= strval($collection->CollectionId);
 
-						################################################################################
-						# get SyncState of CollectionId
-						################################################################################
-
 						$settings_client = active_sync_get_settings_sync($request["AuthUser"], $collection_id, $request["DeviceId"]);
-
-						################################################################################
-						# get SyncState of CollectionId (SyncKey, SyncDat)
-						################################################################################
-
 						$settings_server = active_sync_get_settings_sync($request["AuthUser"], $collection_id, "");
-
-						################################################################################
-						# get default Class of CollectionId
-						################################################################################
 
 						$default_class = active_sync_get_class_by_collection_id($request["AuthUser"], $collection_id);
 
@@ -5692,7 +5530,7 @@ function active_sync_handle_sync($request)
 						# if SyncKey != 0 then absence of GetChanges == 1
 						# if GetChanges is empty then a value of 1 is assumed in any case
 
-						if(isset($collection->GetChanges) === false)
+						if(! isset($collection->GetChanges))
 							$get_changes = ($sync_key == 0 ? 0 : 1);
 						elseif(strval($collection->GetChanges) == "")
 							$get_changes = 1;
@@ -5703,7 +5541,7 @@ function active_sync_handle_sync($request)
 						# check WindowsSize (collection)
 						################################################################################
 
-						if(isset($collection->WindowSize) === false)
+						if(! isset($collection->WindowSize))
 							$window_size = 100;
 						elseif(intval($collection->WindowSize) == 0)
 							$window_size = 512;
@@ -5763,10 +5601,6 @@ function active_sync_handle_sync($request)
 
 						if($sync_key == 0)
 							{
-							################################################################################
-							# process can not be continued (collection)
-							################################################################################
-
 							$response->x_switch("AirSync");
 
 							$response->x_open("Collection");
@@ -5780,18 +5614,10 @@ function active_sync_handle_sync($request)
 
 							$response->x_close("Collection");
 
-							################################################################################
-							# mark CollectionId as changed
-							################################################################################
-
 							$changed_collections[$collection_id] = 1;
 							}
 						elseif($status == 1)
 							{
-							################################################################################
-							# check for elements sended by device
-							################################################################################
-
 							if(isset($collection->Commands))
 								{
 								$response->x_switch("AirSync");
@@ -5827,7 +5653,7 @@ function active_sync_handle_sync($request)
 													$status = 5; # Server error.
 												elseif($default_class == "")
 													$status = 5; # Server error.
-												elseif(function_exists("active_sync_handle_sync_save_" . strtolower($default_class)) === false)
+												elseif(! function_exists("active_sync_handle_sync_save_" . strtolower($default_class)))
 													$status = 5; # Server error.
 
 												else
@@ -5872,11 +5698,11 @@ active_sync_debug("s: " . $settings_server["SyncDat"][$server_id]);
 active_sync_debug("c: " . $settings_client["SyncDat"][$server_id]);
 active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/" . $server_id . ".data"));
 
-												if(isset($settings_client["SyncDat"][$server_id]) === false)
+												if(! isset($settings_client["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(isset($settings_server["SyncDat"][$server_id]) === false)
+												elseif(! isset($settings_server["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(function_exists("active_sync_handle_sync_save_" . strtolower($default_class)) === false)
+												elseif(! function_exists("active_sync_handle_sync_save_" . strtolower($default_class)))
 													$status = 5; # Server error.
 												else
 													{
@@ -5914,85 +5740,40 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 											$response->x_open("Delete");
 
-												if(isset($settings_client["SyncDat"][$server_id]) === false)
+												if(! isset($settings_client["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(isset($settings_server["SyncDat"][$server_id]) === false)
+												elseif(! isset($settings_server["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(file_exists(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/" . $server_id . ".data") === false)
+												elseif(! file_exists(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/" . $server_id . ".data"))
 													$status = 8; # Object not found.
 												else
 													{
-													################################################################################
-													# set status
-													################################################################################
-													
 													$status = 1; # Success;
 
-													################################################################################
-													# get data from file
-													################################################################################
-													
 													$data = active_sync_get_settings_data($request["AuthUser"], $collection_id, $server_id);
-													
-													################################################################################
-													# check for Attachments
-													################################################################################
 													
 													if(isset($data["Attachments"]))
 														{
-														################################################################################
-														# check each Attachment
-														################################################################################
-													
 														foreach($data["Attachments"] as $attachment)
 															{
-															################################################################################
-															# skip if FileReference do not exist
-															################################################################################
-													
-															if(isset($attachment["AirSyncBase"]["FileReference"]) === false)
-																{
+															if(! isset($attachment["AirSyncBase"]["FileReference"]))
 																$status = 8; # Object not found.
-													
-																break;
-																}
-													
-															################################################################################
-															# skip if file given by FileReference do not exist
-															################################################################################
-													
-															if(file_exists(ATT_DIR . "/" . $attachment["AirSyncBase"]["FileReference"]) === false)
-																{
+															elseif(! file_exists(ATT_DIR . "/" . $attachment["AirSyncBase"]["FileReference"]))
 																$status = 8; # Object not found.
-													
-																break;
-																}
-													
-															################################################################################
-															# skip if file given by FileReference can not be deleted
-															################################################################################
-													
-															if(unlink(ATT_DIR . "/" . $attachment["AirSyncBase"]["FileReference"]) === false)
-																{
+															elseif(!unlink(ATT_DIR . "/" . $attachment["AirSyncBase"]["FileReference"]))
 																$status = 5; # Server error.
-													
+
+															if($status != 1)
 																break;
-																}
 															}
 														}
 													
-													################################################################################
-													# skip if file given by CollectionId and ServerId can not be deleted
-													################################################################################
-													
-													if(unlink(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/" . $server_id . ".data") === false)
+													if(! unlink(DAT_DIR . "/" . $request["AuthUser"] . "/" . $collection_id . "/" . $server_id . ".data"))
 														$status = 5; # Server error.
 													}
 
 												if($status == 1)
-													{
 													unset($settings_client["SyncDat"][$server_id]);
-													}
 
 												foreach(array("ServerId" => $server_id, "Status" => $status) as $token => $value)
 													{
@@ -6016,11 +5797,11 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 											$response->x_open("Fetch");
 
-												if(isset($settings_client["SyncDat"][$server_id]) === false)
+												if(! isset($settings_client["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(isset($settings_server["SyncDat"][$server_id]) === false)
+												elseif(! isset($settings_server["SyncDat"][$server_id]))
 													$status = 8; # Object not found.
-												elseif(function_exists("active_sync_handle_sync_send_" . strtolower($default_class)) === false)
+												elseif(! function_exists("active_sync_handle_sync_send_" . strtolower($default_class)))
 													$status = 5; # Server error.
 												else
 													{
@@ -6062,36 +5843,15 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 							if($get_changes == 1)
 								{
-								################################################################################
-								# init jobs
-								################################################################################
+								$settings_server = active_sync_get_settings_sync($request["AuthUser"], $collection_id, "");
 
 								$jobs = array();
 
-								################################################################################
-								# get SyncState of CollectionId (SyncKey, SyncDat)
-								# get it once again, maybe some data has been written
-								################################################################################
-
-								$settings_server = active_sync_get_settings_sync($request["AuthUser"], $collection_id, "");
-
-								################################################################################
-								# check each file the server got
-								################################################################################
-
 								foreach($settings_server["SyncDat"] as $server_id => $server_timestamp)
 									{
-									################################################################################
-									# get content of file
-									################################################################################
-
 									$data = active_sync_get_settings_data($request["AuthUser"], $collection_id, $server_id);
 
-									################################################################################
-									# check class of file
-									################################################################################
-
-									if(isset($data["AirSync"]["Class"]) === false)
+									if(! isset($data["AirSync"]["Class"]))
 										$data["AirSync"]["Class"] = $default_class;
 
 									################################################################################
@@ -6101,44 +5861,26 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 									$option_class = $default_class;
 									$option_filter_type = 0;
-									$process_sms = 1; # imagine we have sms
+									$process_sms = true; # imagine we have sms
 
 									if(isset($collection->Options))
 										{
 										foreach($collection->Options as $options)
 											{
-											################################################################################
-											# check Class of Option
-											################################################################################
-
-											if(isset($options->Class) === false)
-												$option_class = $default_class;
-											else
+											if(isset($options->Class))
 												$option_class = strval($options->Class); # only occurs on email/sms
-
-											################################################################################
-											# skip if class of option do not match class of data
-											################################################################################
+											else
+												$option_class = $default_class;
 
 											if($option_class != $data["AirSync"]["Class"])
 												continue;
 
-											################################################################################
-											# check FilterType of Option
-											################################################################################
-
-											if(isset($options->FilterType) === false)
-												$option_filter_type = 0;
-											else
+											if(isset($options->FilterType))
 												$option_filter_type = intval($options->FilterType);
+											else
+												$option_filter_type = 0;
 
-											################################################################################
-											# mark Class as found in Option
-											# SMS never got an option
-											# what is going on here?
-											################################################################################
-
-											$process_sms = 0;
+											$process_sms = false;
 											}
 										}
 
@@ -6146,9 +5888,9 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 									# sync SMS
 									################################################################################
 
-									if($process_sms == 1)
+									if($process_sms)
 										{
-										if(isset($settings_client["SyncDat"][$server_id]) === false)
+										if(! isset($settings_client["SyncDat"][$server_id]))
 											$settings_client["SyncDat"][$server_id] = "*";
 										elseif($settings_client["SyncDat"][$server_id] == "*")
 											{
@@ -6172,7 +5914,7 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 									if($option_filter_type == 0)
 										{
-										if(isset($settings_client["SyncDat"][$server_id]) === false)
+										if(! isset($settings_client["SyncDat"][$server_id]))
 											$jobs["Add"][] = $server_id;
 										elseif($settings_client["SyncDat"][$server_id] == "*")
 											$jobs["Add"][] = $server_id;
@@ -6207,7 +5949,7 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 										###########################################################################################
 
-										if(isset($settings_client["SyncDat"][$server_id]) === false)
+										if(! isset($settings_client["SyncDat"][$server_id]))
 											{
 											# file was not sent to client before
 
@@ -6251,7 +5993,7 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 									if($option_filter_type == 8)
 										{
-										if(isset($settings_client["SyncDat"][$server_id]) === false)
+										if(! isset($settings_client["SyncDat"][$server_id]))
 											{
 											# file was not sent to client before
 
@@ -6295,16 +6037,8 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 								foreach($settings_client["SyncDat"] as $server_id => $client_timestamp)
 									{
-									################################################################################
-									# skip if ServerId exist
-									################################################################################
-
 									if(isset($settings_server["SyncDat"][$server_id]))
 										continue;
-
-									################################################################################
-									# add ServerId to list of deleted elements
-									################################################################################
 
 									$jobs["Delete"][] = $server_id;
 									}
@@ -6326,62 +6060,25 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 											$response->x_close($token);
 											}
 
-										################################################################################
-										# create a response for changed elements
-										################################################################################
-
 										$response->x_switch("AirSync");
 
 										$response->x_open("Commands");
 
-											################################################################################
-											# init counter of changed elements
-											################################################################################
-
 											$estimate = 0;
-
-											################################################################################
-											# output for Add/Change
-											################################################################################
 
 											foreach(array("Add", "Change") as $command)
 												{
-												################################################################################
-												# skip if no ServerId in list
-												################################################################################
-
-												if(isset($jobs[$command]) === false)
+												if(! isset($jobs[$command]))
 													continue;
-
-												################################################################################
-												# list all elements
-												################################################################################
 
 												foreach($jobs[$command] as $server_id)
 													{
-													################################################################################
-													# exit if WindowSize is reached
-													# count($jobs[$command]) contains list of elements to change
-													################################################################################
-
 													if($estimate == $window_size)
 														break;
 
-													################################################################################
-													# increase counter of added/changed elements
-													################################################################################
-
 													$estimate ++;
 
-													################################################################################
-													# update timestamp of ServerId in SyncState
-													################################################################################
-
 													$settings_client["SyncDat"][$server_id] = $settings_server["SyncDat"][$server_id];
-
-													################################################################################
-													# output of Added/Changed ServerId and ApplicationData
-													################################################################################
 
 													$response->x_switch("AirSync");
 
@@ -6410,35 +6107,15 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 											foreach(array("Delete", "SoftDelete") as $command)
 												{
-												################################################################################
-												# skip if no ServerId in list
-												################################################################################
-
-												if(isset($jobs[$command]) === false)
+												if(! isset($jobs[$command]))
 													continue;
-
-												################################################################################
-												# list all elements
-												################################################################################
 
 												foreach($jobs[$command] as $server_id)
 													{
-													################################################################################
-													# exit if ServerId is reached
-													################################################################################
-
 													if($estimate == $window_size)
 														break;
 
-													################################################################################
-													# increase counter of changed elements
-													################################################################################
-
 													$estimate ++;
-
-													################################################################################
-													# remove element from SyncState
-													################################################################################
 
 													if($command == "Delete")
 														{
@@ -6446,21 +6123,11 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 														unset($settings_client["SyncDat"][$server_id]);
 														}
 
-													################################################################################
-													# mark element in SyncState as SoftDelete
-													################################################################################
-
 													if($command == "SoftDelete")
 														{
 														$settings_server["SyncDat"][$server_id] = "*";
 														$settings_client["SyncDat"][$server_id] = "*";
 														}
-
-													################################################################################
-													# output of Deleted/SoftDeleted ServerId
-													################################################################################
-
-													$response->x_switch("AirSync");
 
 													$response->x_open($command);
 														$response->x_open("ServerId");
@@ -6472,35 +6139,15 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 
 										$response->x_close("Commands");
 
-										################################################################################
-										# init counter of changed elements
-										################################################################################
-
 										$estimate = 0;
-
-										################################################################################
-										# get total number of changed elements
-										################################################################################
 
 										foreach(array("Add", "Change", "Delete", "SoftDelete") as $command)
 											{
-											################################################################################
-											# skip if no elements in list
-											################################################################################
-
-											if(isset($jobs[$command]) === false)
+											if(! isset($jobs[$command]))
 												continue;
 
-											################################################################################
-											# increase counter
-											################################################################################
-
-											$estimate = $estimate + count($jobs[$command]);
+											$estimate += count($jobs[$command]);
 											}
-
-										################################################################################
-										# check if we got more changes than requested by WindowSize
-										################################################################################
 
 										if($estimate > $window_size)
 											{
@@ -6510,10 +6157,6 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 											}
 
 									$response->x_close("Collection");
-
-									################################################################################
-									# mark CollectionId as changed
-									################################################################################
 
 									$changed_collections[$collection_id] = 1;
 									} # if(count($jobs) > 0)
@@ -6552,16 +6195,7 @@ active_sync_debug("x: " . filemtime(DAT_DIR . "/" . $request["AuthUser"] . "/" .
 						if($changed_collections[$collection_id] == 0)
 							continue;
 
-						################################################################################
-						# store SyncState for CollectionId
-						################################################################################
-
 						active_sync_put_settings_sync($request["AuthUser"], $collection_id, $request["DeviceId"], $settings_client);
-
-						################################################################################
-						# mark collections as changed
-						# empty response impossible now
-						################################################################################
 
 						$changed_collections["*"] = 1;
 						} # foreach($xml->Collections->Collection as $collection)
@@ -6667,12 +6301,8 @@ function active_sync_handle_sync_save($xml, $user, $collection_id, $server_id, $
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if($class == "Contact")
 		{
@@ -6684,16 +6314,12 @@ function active_sync_handle_sync_save($xml, $user, $collection_id, $server_id, $
 	if($class == "Email")
 		{
 		foreach(array("Class") as $token)
-			{
-			if(isset($xml->$token) === false)
-				continue;
-
-			$data["AirSync"][$token] = strval($xml->$token);
-			}
+			if(isset($xml->$token))
+				$data["AirSync"][$token] = strval($xml->$token);
 
 		foreach(array("UmCallerID", "UmUserNotes") as $token)
 			{
-			if(isset($xml->ApplicationData->$token) === false)
+			if(! isset($xml->ApplicationData->$token))
 				continue;
 
 	#		$data["Email2"][$token] = strval($xml->ApplicationData->$token);
@@ -6706,15 +6332,9 @@ function active_sync_handle_sync_save($xml, $user, $collection_id, $server_id, $
 			$data["Flag"] = array();
 
 			foreach(array("Email", "Tasks") as $codepage)
-				{
 				foreach(active_sync_get_default_flag($codepage) as $token)
-					{
-					if(isset($xml->ApplicationData->Flag->$token) === false)
-						continue;
-
-					$data["Flag"][$codepage][$token] = strval($xml->ApplicationData->Flag->$token);
-					}
-				}
+					if(isset($xml->ApplicationData->Flag->$token))
+						$data["Flag"][$codepage][$token] = strval($xml->ApplicationData->Flag->$token);
 			}
 		}
 
@@ -6724,24 +6344,16 @@ function active_sync_handle_sync_save($xml, $user, $collection_id, $server_id, $
 			$a = array();
 
 			foreach(active_sync_get_default_attendee() as $token => $value)
-				{
-				if(isset($attendee->$token) === false)
-					continue;
-
-				$a[$token] = strval($attendee->$token);
-				}
+				if(isset($attendee->$token))
+					$a[$token] = strval($attendee->$token);
 
 			$data["Attendees"][] = $a;
 			}
 
 	if(isset($xml->ApplicationData->Recurrence))
 		foreach(active_sync_get_default_recurrence() as $token => $value)
-			{
-			if(isset($xml->ApplicationData->Recurrence->$token) === false)
-				continue;
-
-			$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
-			}
+			if(isset($xml->ApplicationData->Recurrence->$token))
+				$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -6749,20 +6361,12 @@ function active_sync_handle_sync_save($xml, $user, $collection_id, $server_id, $
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Children))
@@ -6789,12 +6393,8 @@ function active_sync_handle_sync_save_calendar($xml, $user, $collection_id, $ser
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -6802,20 +6402,12 @@ function active_sync_handle_sync_save_calendar($xml, $user, $collection_id, $ser
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Categories))
@@ -6825,12 +6417,8 @@ function active_sync_handle_sync_save_calendar($xml, $user, $collection_id, $ser
 
 	if(isset($xml->ApplicationData->Recurrence))
 		foreach(active_sync_get_default_recurrence() as $token => $value)
-			{
-			if(isset($xml->ApplicationData->Recurrence->$token) === false)
-				continue;
-
-			$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
-			}
+			if(isset($xml->ApplicationData->Recurrence->$token))
+				$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
 
 	if(isset($xml->ApplicationData->Attendees))
 		foreach($xml->ApplicationData->Attendees->Attendee as $attendee)
@@ -6838,12 +6426,8 @@ function active_sync_handle_sync_save_calendar($xml, $user, $collection_id, $ser
 			$a = array();
 
 			foreach(active_sync_get_default_attendee() as $token => $value)
-				{
-				if(isset($attendee->$token) === false)
-					continue;
-
-				$a[$token] = strval($attendee->$token);
-				}
+				if(isset($attendee->$token))
+					$a[$token] = strval($attendee->$token);
 
 			$data["Attendees"][] = $a;
 			}
@@ -6863,12 +6447,8 @@ function active_sync_handle_sync_save_contacts($xml, $user, $collection_id, $ser
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -6876,20 +6456,12 @@ function active_sync_handle_sync_save_contacts($xml, $user, $collection_id, $ser
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Categories))
@@ -6911,12 +6483,8 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 	$data = active_sync_get_settings_data($user, $collection_id, $server_id);
 
 	foreach(array("Class") as $token)
-		{
-		if(isset($xml->$token) === false)
-			continue;
-
-		$data["AirSync"][$token] = strval($xml->$token);
-		}
+		if(isset($xml->$token))
+			$data["AirSync"][$token] = strval($xml->$token);
 
 	$codepage_table = array
 		(
@@ -6926,12 +6494,8 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 
 	foreach($codepage_table as $codepage => $token_table)
 		foreach($token_table as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -6939,20 +6503,12 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Categories))
@@ -6966,7 +6522,7 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 
 	foreach(array("UmCallerID", "UmUserNotes") as $token)
 		{
-		if(isset($xml->ApplicationData->$token) === false)
+		if(! isset($xml->ApplicationData->$token))
 			continue;
 
 #		$data["Email2"][$token] = strval($xml->ApplicationData->$token);
@@ -6979,15 +6535,9 @@ function active_sync_handle_sync_save_email($xml, $user, $collection_id, $server
 		$data["Flag"] = array();
 
 		foreach(array("Email", "Tasks") as $codepage)
-			{
 			foreach(active_sync_get_default_flag($codepage) as $token)
-				{
-				if(isset($xml->ApplicationData->Flag->$token) === false)
-					continue;
-
-				$data["Flag"][$codepage][$token] = strval($xml->ApplicationData->Flag->$token);
-				}
-			}
+				if(isset($xml->ApplicationData->Flag->$token))
+					$data["Flag"][$codepage][$token] = strval($xml->ApplicationData->Flag->$token);
 		}
 
 	return(active_sync_put_settings_data($user, $collection_id, $server_id, $data) === false ? 16 : 1); # Ok. | Server error.
@@ -7004,12 +6554,8 @@ function active_sync_handle_sync_save_notes($xml, $user, $collection_id, $server
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(! isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -7017,20 +6563,12 @@ function active_sync_handle_sync_save_notes($xml, $user, $collection_id, $server
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Categories))
@@ -7052,12 +6590,8 @@ function active_sync_handle_sync_save_tasks($xml, $user, $collection_id, $server
 
 	foreach($codepage_table as $codepage => $null)
 		foreach($codepage_table[$codepage] as $token => $value)
-			{
-			if(isset($xml->ApplicationData->$token) === false)
-				continue;
-
-			$data[$codepage][$token] = strval($xml->ApplicationData->$token);
-			}
+			if(isset($xml->ApplicationData->$token))
+				$data[$codepage][$token] = strval($xml->ApplicationData->$token);
 
 	if(isset($xml->ApplicationData->Body))
 		foreach($xml->ApplicationData->Body as $body)
@@ -7065,20 +6599,12 @@ function active_sync_handle_sync_save_tasks($xml, $user, $collection_id, $server
 			$b = array();
 
 			foreach(active_sync_get_default_body() as $token => $value)
-				{
-				if(isset($body->$token) === false)
-					continue;
+				if(isset($body->$token))
+					$b[$token] = strval($body->$token);
 
-				$b[$token] = strval($body->$token);
-				}
-
-			if(isset($b["Data"]) === false)
-				continue;
-
-			if(strlen($b["Data"]) == 0)
-				continue;
-
-			$data["Body"][] = $b;
+			if(isset($b["Data"]))
+				if(strlen($b["Data"]) > 0)
+					$data["Body"][] = $b;
 			}
 
 	if(isset($xml->ApplicationData->Categories))
@@ -7088,12 +6614,8 @@ function active_sync_handle_sync_save_tasks($xml, $user, $collection_id, $server
 
 	if(isset($xml->ApplicationData->Recurrence))
 		foreach(active_sync_get_default_recurrence() as $token => $value)
-			{
-			if(isset($xml->ApplicationData->Recurrence->$token) === false)
-				continue;
-
-			$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
-			}
+			if(isset($xml->ApplicationData->Recurrence->$token))
+				$data["Recurrence"][$token] = strval($xml->ApplicationData->Recurrence->$token);
 
 	return(active_sync_put_settings_data($user, $collection_id, $server_id, $data) === false ? 16 : 1);
 	}
@@ -7139,14 +6661,14 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 		foreach($codepage_table as $codepage => $null)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $null)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -7195,7 +6717,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 						foreach(array("Email") as $codepage)
 							{
-							if(isset($data["Attachments"][$id][$codepage]) === false)
+							if(! isset($data["Attachments"][$id][$codepage]))
 								continue;
 
 							$response->x_switch($codepage);
@@ -7233,7 +6755,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 						foreach(active_sync_get_default_attendee() as $token => $null)
 							{
-							if(isset($attendee[$token]) === false)
+							if(! isset($attendee[$token]))
 								continue;
 
 							if(strlen($attendee[$token]) == 0)
@@ -7301,7 +6823,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 					foreach(array("Email", "Tasks") as $codepage)
 						{
-						if(isset($data["Flag"][$codepage]) === false)
+						if(! isset($data["Flag"][$codepage]))
 							continue;
 
 						$response->x_switch($codepage);
@@ -7332,7 +6854,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 				foreach(array("Email", "Email2", "Calendar") as $codepage)
 					{
-					if(isset($data["Meeting"][$codepage]) === false)
+					if(! isset($data["Meeting"][$codepage]))
 						continue;
 
 					$response->x_switch($codepage);
@@ -7367,7 +6889,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 						foreach(active_sync_get_default_recurrence() as $token => $null)
 							{
-							if(isset($data["Recurrence"][$id][$token]) === false)
+							if(! isset($data["Recurrence"][$id][$token]))
 								continue;
 
 							if(strlen($data["Recurrence"][$id][$token]) == 0)
@@ -7398,7 +6920,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 				foreach(active_sync_get_default_rights_management() as $token => $null)
 					{
-					if(isset($data["RightsManagement"][$token]) === false)
+					if(! isset($data["RightsManagement"][$token]))
 						continue;
 
 					if(strlen($data["RightsManagement"][$token]) == 0)
@@ -7441,7 +6963,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -7463,7 +6985,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
@@ -7476,7 +6998,7 @@ function active_sync_handle_sync_send(& $response, $user, $collection_id, $serve
 								if(isset($preference["Preview"]))
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -7537,14 +7059,14 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 
 		foreach($codepage_table as $codepage => $null)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $value)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -7575,7 +7097,7 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 
 						foreach(active_sync_get_default_attendee() as $token => $value)
 							{
-							if(isset($attendee[$token]) === false)
+							if(! isset($attendee[$token]))
 								continue;
 
 							if(strlen($attendee[$token]) == 0)
@@ -7604,7 +7126,7 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 
 				foreach(active_sync_get_default_recurrence() as $token => $value)
 					{
-					if(isset($data["Recurrence"][$token]) === false)
+					if(! isset($data["Recurrence"][$token]))
 						continue;
 
 					if(strlen($data["Recurrence"][$token]) == 0)
@@ -7647,7 +7169,7 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -7669,13 +7191,13 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
 								continue;
 
-							if(isset($data["Body"][$random_body_id]["Data"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Data"]))
 								continue;
 
 							$response->x_switch("AirSyncBase");
@@ -7683,10 +7205,9 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 							$response->x_open("Body");
 
 								if(isset($preference["Preview"]))
-									{
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -7696,11 +7217,10 @@ function active_sync_handle_sync_send_calendar(& $response, $user, $collection_i
 											$response->x_print(substr($data["Body"][$random_preview_id]["Data"], 0, intval($preference->Preview)));
 										$response->x_close("Preview");
 										}
-									}
 
 								if(isset($preference->TruncationSize))
 									if(intval($preference->TruncationSize) > 0)
-										if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
+										if(! isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
 											{
 											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
@@ -7773,14 +7293,14 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 
 		foreach($codepage_table as $codepage => $null)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $value)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -7840,7 +7360,7 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -7862,13 +7382,13 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
 								continue;
 
-							if(isset($data["Body"][$random_body_id]["Data"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Data"]))
 								continue;
 
 							$response->x_switch("AirSyncBase");
@@ -7879,7 +7399,7 @@ function active_sync_handle_sync_send_contacts(& $response, $user, $collection_i
 									{
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -7978,14 +7498,14 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 		foreach($codepage_table as $codepage => $token_table)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $value)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -8015,7 +7535,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 						foreach(array("AirSyncBase", "Email2") as $codepage)
 							{
-							if(isset($data["Attachments"][$id][$codepage]) === false)
+							if(! isset($data["Attachments"][$id][$codepage]))
 								continue;
 
 							$response->x_switch($codepage);
@@ -8056,7 +7576,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 					foreach(array("Email", "Tasks") as $codepage)
 						{
-						if(isset($data["Flag"][$codepage]) === false)
+						if(! isset($data["Flag"][$codepage]))
 							continue;
 
 						$response->x_switch($codepage);
@@ -8087,7 +7607,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 				foreach(array("Email", "Email2", "Calendar") as $codepage)
 					{
-					if(isset($data["Meeting"][$codepage]) === false)
+					if(! isset($data["Meeting"][$codepage]))
 						continue;
 
 					$response->x_switch($codepage);
@@ -8122,7 +7642,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 						foreach(active_sync_get_default_recurrence() as $token => $value)
 							{
-							if(isset($data["Recurrence"][$id][$token]) === false)
+							if(! isset($data["Recurrence"][$id][$token]))
 								continue;
 
 							if(strlen($data["Recurrence"][$id][$token]) == 0)
@@ -8168,7 +7688,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -8190,13 +7710,13 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
 								continue;
 
-							if(isset($data["Body"][$random_body_id]["Data"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Data"]))
 								continue;
 
 							$response->x_switch("AirSyncBase");
@@ -8207,7 +7727,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 									{
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -8221,7 +7741,7 @@ function active_sync_handle_sync_send_email(& $response, $user, $collection_id, 
 
 								if(isset($preference->TruncationSize))
 									if(intval($preference->TruncationSize) > 0)
-										if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
+										if(! isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
 											{
 											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
@@ -8293,14 +7813,14 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 
 		foreach($codepage_table as $codepage => $null)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $value)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -8347,7 +7867,7 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -8369,13 +7889,13 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
 								continue;
 
-							if(isset($data["Body"][$random_body_id]["Data"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Data"]))
 								continue;
 
 							$response->x_switch("AirSyncBase");
@@ -8383,10 +7903,9 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 							$response->x_open("Body");
 
 								if(isset($preference["Preview"]))
-									{
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -8396,11 +7915,10 @@ function active_sync_handle_sync_send_notes(& $response, $user, $collection_id, 
 											$response->x_print(substr($data["Body"][$random_preview_id]["Data"], 0, intval($preference->Preview)));
 										$response->x_close("Preview");
 										}
-									}
 
 								if(isset($preference->TruncationSize))
 									if(intval($preference->TruncationSize) > 0)
-										if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
+										if(! isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
 											{
 											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
@@ -8472,14 +7990,14 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 
 		foreach($codepage_table as $codepage => $null)
 			{
-			if(isset($data[$codepage]) === false)
+			if(! isset($data[$codepage]))
 				continue;
 
 			$response->x_switch($codepage);
 
 			foreach($codepage_table[$codepage] as $token => $value)
 				{
-				if(isset($data[$codepage][$token]) === false)
+				if(! isset($data[$codepage][$token]))
 					continue;
 
 				if(strlen($data[$codepage][$token]) == 0)
@@ -8509,7 +8027,7 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 
 				foreach(active_sync_get_default_recurrence() as $token => $value)
 					{
-					if(isset($data["Recurrence"][$token]) === false)
+					if(! isset($data["Recurrence"][$token]))
 						continue;
 
 					if(strlen($data["Recurrence"][$token]) == 0)
@@ -8552,7 +8070,7 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 
 									foreach(active_sync_get_default_rights_management() as $token => $value)
 										{
-										if(isset($data["RightsManagement"][$token]) === false)
+										if(! isset($data["RightsManagement"][$token]))
 											continue;
 
 										if(strlen($data["RightsManagement"][$token]) == 0)
@@ -8574,13 +8092,13 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 						{
 						foreach($data["Body"] as $random_body_id => $null) # !!!
 							{
-							if(isset($data["Body"][$random_body_id]["Type"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Type"]))
 								continue;
 
 							if($data["Body"][$random_body_id]["Type"] != intval($preference->Type))
 								continue;
 
-							if(isset($data["Body"][$random_body_id]["Data"]) === false)
+							if(! isset($data["Body"][$random_body_id]["Data"]))
 								continue;
 
 							$response->x_switch("AirSyncBase");
@@ -8588,10 +8106,9 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 							$response->x_open("Body");
 
 								if(isset($preference["Preview"]))
-									{
 									foreach($data["Body"] as $random_preview_id => $null) # !!!
 										{
-										if(isset($data["Body"][$random_preview_id]["Type"]) === false)
+										if(! isset($data["Body"][$random_preview_id]["Type"]))
 											continue;
 
 										if($data["Body"][$random_preview_id]["Type"] != 1)
@@ -8601,11 +8118,10 @@ function active_sync_handle_sync_send_tasks(& $response, $user, $collection_id, 
 											$response->x_print(substr($data["Body"][$random_preview_id]["Data"], 0, intval($preference->Preview)));
 										$response->x_close("Preview");
 										}
-									}
 
 								if(isset($preference->TruncationSize))
 									if(intval($preference->TruncationSize) > 0)
-										if(isset($data["Body"][$random_body_id]["EstimatedDataSize"]) === false)
+										if(! isset($data["Body"][$random_body_id]["EstimatedDataSize"]))
 											{
 											$data["Body"][$random_body_id]["Data"] = substr($data["Body"][$random_body_id]["Data"], 0, intval($preference->TruncationSize));
 
@@ -8667,25 +8183,22 @@ function active_sync_handle_validate_cert($request)
 	{
 	$xml = active_sync_wbxml_request_parse_b($request["wbxml"]);
 
-	if(isset($xml->CheckCRL) === false)
-		$CheckCRL = 0;
-	else
+	if(isset($xml->CheckCRL))
 		$CheckCRL = strval($xml->CheckCRL);
+	else
+		$CheckCRL = 0;
 
 	$states = array();
 
 	if(isset($xml->CertificateChain))
-		{
 		foreach($xml->CertificateChain->Certificate as $Certificate)
 			{
 			$state = 1; # Success.
 
 			$states[] = $state;
 			}
-		}
 
 	if(isset($xml->Certificates))
-		{
 		foreach($xml->Certificates->Certificate as $Certificate)
 			{
 			$cert = chunk_split($Certificate, 64);
@@ -8718,7 +8231,7 @@ function active_sync_handle_validate_cert($request)
 			if($CheckCRL == 0)
 				{
 				}
-			elseif(isset($data["extensions"]["crlDistributionPoints"]) === false)
+			elseif(! isset($data["extensions"]["crlDistributionPoints"]))
 				$state = 14; # The validity of the digital ID cannot be determined because the server that provides this information cannot be contacted.
 			else
 				{
@@ -8747,7 +8260,6 @@ function active_sync_handle_validate_cert($request)
 
 			$states[] = $state;
 			}
-		}
 
 	$response = new active_sync_wbxml_response();
 
@@ -8780,11 +8292,11 @@ function active_sync_http()
 
 	$method = $request["Method"];
 
-	if(isset($table[$method]) === false)
+	if(! isset($table[$method]))
 		header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
 	elseif(strlen($table[$method]) == 0)
 		header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
-	elseif(function_exists($table[$method]) === false)
+	elseif(! function_exists($table[$method]))
 		header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
 	else
 		$table[$method]($request);
@@ -8792,9 +8304,9 @@ function active_sync_http()
 
 function active_sync_http_method_get($request)
 	{
-	if(defined("WEB_DIR") === false)
+	if(! defined("WEB_DIR"))
 		header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 204, "No Content")));
-	elseif(is_dir(WEB_DIR) === false)
+	elseif(! is_dir(WEB_DIR))
 		header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 204, "No Content")));
 	else
 		{
@@ -8827,7 +8339,7 @@ function active_sync_http_method_post($request)
 		"xml" => ""
 		);
 
-	if(active_sync_get_is_identified($request) == 0)
+	if(! active_sync_get_is_identified($request))
 		header("WWW-Authenticate: basic realm=\"ActiveSync\"");
 	elseif($request["DeviceId"] != "validate")
 		{
@@ -8837,16 +8349,16 @@ function active_sync_http_method_post($request)
 
 		$cmd = $request["Cmd"];
 
-		if(isset($table[$cmd]) === false)
+		if(! isset($table[$cmd]))
 			header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
 		elseif(strlen($table[$cmd]) == 0)
 			header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
-		elseif(function_exists($table[$cmd]) === false)
+		elseif(! function_exists($table[$cmd]))
 			header(implode(" ", array($_SERVER["SERVER_PROTOCOL"], 501, "Not Implemented")));
 		else
 			$response["wbxml"] = $table[$cmd]($request);
 
-		if(headers_sent() === false)
+		if(! headers_sent())
 			{
 			header("Content-Length: " . strlen($response["wbxml"]));
 
@@ -8961,7 +8473,7 @@ function active_sync_http_query_parse()
 		list($retval[$key . "Domain"], $retval[$key . "User"]) = (strpos($retval[$key . "User"], "\\") === false ? array($domain, $retval[$key . "User"]) : explode("\\", $retval[$key . "User"], 2));
 		}
 
-#	$data = (isset($GLOBALS["HTTP_RAW_POST_DATA"]) === false ? null : $GLOBALS["HTTP_RAW_POST_DATA"]);
+#	$data = (isset($GLOBALS["HTTP_RAW_POST_DATA"]) ? $GLOBALS["HTTP_RAW_POST_DATA"] : null);
 	$data = file_get_contents("php://input");
 
 	$retval["wbxml"] = $data;
@@ -9006,15 +8518,9 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 	$codepage_table["Calendar"] = array("UID" => "UID");
 
 	foreach($codepage_table as $codepage => $null)
-		{
 		foreach($codepage_table[$codepage] as $key => $token)
-			{
-			if(isset($vcalendar["VCALENDAR"]["VEVENT"][$key]) === false)
-				continue;
-
-			$data["Meeting"][$codepage][$token] = $vcalendar["VCALENDAR"]["VEVENT"][$key];
-			}
-		}
+			if(isset($vcalendar["VCALENDAR"]["VEVENT"][$key]))
+				$data["Meeting"][$codepage][$token] = $vcalendar["VCALENDAR"]["VEVENT"][$key];
 
 	########################################################################
 	# check MeetingStatus
@@ -9032,7 +8538,7 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 
 #	$data["Meeting"]["Email"]["MeetingStatus"] = 0;
 
-	$organizer = (isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]) === false ? 0 : 1);
+	$organizer = (isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]) ? 1 : 0);
 
 	foreach(array("CANCEL" => array(7, 5), "REQUEST" => array(3, 1)) as $key => $value)
 		{
@@ -9057,11 +8563,9 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 			$data["Meeting"]["Email2"]["MeetingMessageType"] = $value;
 
 	if(isset($vcalendar["VCALENDAR"]["VEVENT"]["CLASS"]))
-		{
 		foreach(array("DEFAULT" => 0, "PUBLIC" => 1, "PRIVATE" => 2, "CONFIDENTIAL" => 3) as $key => $value)
 			if($vcalendar["VCALENDAR"]["VEVENT"]["CLASS"] == $key)
 				$data["Meeting"]["Email"]["Sensitivity"] = $value;
-		}
 
 	if(isset($vcalendar["VCALENDAR"]["VEVENT"]["X-MICROSOFT-CDO-ALLDAYEVENT"]))
 		{
@@ -9123,7 +8627,7 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 		}
 
 
-	$data["Email"]["From"] = (isset($data["Email"]["From"]) === false ? $user . "@" . $host : $data["Email"]["From"]);
+	$data["Email"]["From"] = (isset($data["Email"]["From"]) ? $data["Email"]["From"] : $user . "@" . $host);
 
 	list($f_name, $f_mail) = active_sync_mail_parse_address($data["Email"]["From"]);
 	list($t_name, $t_mail) = active_sync_mail_parse_address($data["Email"]["To"]);
@@ -9138,7 +8642,7 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 	if(isset($vcalendar["VCALENDAR"]["METHOD"]))
 		if($vcalendar["VCALENDAR"]["METHOD"] === "CANCEL")
 			{
-			if(isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]) === false)
+			if(! isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]))
 				if(isset($vcalendar["VCALENDAR"]["VEVENT"]["ATTENDEE"][$user . "@" . $host]))
 					{
 					$server_id = active_sync_get_calendar_by_uid($user, $vcalendar["VCALENDAR"]["VEVENT"]["UID"]);
@@ -9193,7 +8697,7 @@ function active_sync_mail_add_container_c(& $data, $body, $user)
 			$data["Email"]["ContentClass"] = "urn:content-classes:calendarmessage";
 			$data["Email"]["MessageClass"] = "IPM.Notification.Meeting";
 
-			if(isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]) === false)
+			if(! isset($vcalendar["VCALENDAR"]["VEVENT"]["ORGANIZER"][$user . "@" . $host]))
 				if(isset($vcalendar["VCALENDAR"]["VEVENT"]["ATTENDEE"][$user . "@" . $host]))
 					{
 					if($vcalendar["VCALENDAR"]["VEVENT"]["ATTENDEE"][$user . "@" . $host]["PARTSTAT"] == "NEEDS-ACTION")
@@ -9266,12 +8770,8 @@ function active_sync_mail_add_container_r(& $data, $body)
 function active_sync_mail_body_smime_cleanup()
 	{
 	foreach(array("dec", "enc", "ver") as $extension)
-		{
-		if(file_exists("/tmp/" . $file . "." . $extension) === false)
-			continue;
-
-		unlink("/tmp/" . $file . "." . $extension);
-		}
+		if(file_exists("/tmp/" . $file . "." . $extension))
+			unlink("/tmp/" . $file . "." . $extension);
 	}
 
 function active_sync_mail_body_smime_decode($mime)
@@ -9291,11 +8791,11 @@ function active_sync_mail_body_smime_decode($mime)
 
 		file_put_contents("/tmp/" . $file . ".enc", $mime);
 
-		if(openssl_pkcs7_decrypt("/tmp/" . $file . ".enc", "/tmp/" . $file . ".dec", $crt, array($key, "")) === false)
+		if(! openssl_pkcs7_decrypt("/tmp/" . $file . ".enc", "/tmp/" . $file . ".dec", $crt, array($key, "")))
 			$new_temp_message = $mime;
-		elseif(openssl_pkcs7_verify("/tmp/" . $file . ".dec", PKCS7_NOVERIFY, "/tmp/" . $file . ".ver") === false)
+		elseif(! openssl_pkcs7_verify("/tmp/" . $file . ".dec", PKCS7_NOVERIFY, "/tmp/" . $file . ".ver"))
 			$new_temp_message = $mime;
-		elseif(openssl_pkcs7_verify("/tmp/" . $file . ".dec", PKCS7_NOVERIFY, "/tmp/" . $file . ".ver", array(), "/tmp/" . $file . ".ver", "/tmp/" . $file . ".dec") === false)
+		elseif(! openssl_pkcs7_verify("/tmp/" . $file . ".dec", PKCS7_NOVERIFY, "/tmp/" . $file . ".ver", array(), "/tmp/" . $file . ".ver", "/tmp/" . $file . ".dec"))
 			$new_temp_message = $mime;
 		else
 			{
@@ -9349,7 +8849,7 @@ function active_sync_mail_body_smime_encode($mime) # almost copy of sign
 
 		$crt = file_get_contents(CRT_DIR . "/certs/" . $t_mail . ".pem");
 
-		if(openssl_pkcs7_encrypt("/tmp/" . $file . ".dec", "/tmp/" . $file . ".enc", $crt, $head_parsed) === false)
+		if(! openssl_pkcs7_encrypt("/tmp/" . $file . ".dec", "/tmp/" . $file . ".enc", $crt, $head_parsed))
 			$new_temp_message = $mime;
 		else
 			$new_temp_message = file_get_contents("/tmp/" . $file . ".enc");
@@ -9391,7 +8891,7 @@ function active_sync_mail_body_smime_sign($mime) # almost copy of encode
 		$crt = file_get_contents(CRT_DIR . "/certs/" . $f_mail . ".pem");
 		$key = file_get_contents(CRT_DIR . "/private/" . $f_mail . ".pem");
 
-		if(openssl_pkcs7_sign("/tmp/" . $file . ".dec", "/tmp/" . $file . ".enc", $crt, $key, $head_parsed) === false)
+		if(! openssl_pkcs7_sign("/tmp/" . $file . ".dec", "/tmp/" . $file . ".enc", $crt, $key, $head_parsed))
 			$new_temp_message = $mime;
 		else
 			$new_temp_message = file_get_contents("/tmp/" . $file . ".enc");
@@ -9438,7 +8938,7 @@ function active_sync_mail_count($user, $collection_id)
 
 		$data = active_sync_get_settings_data($user, $collection_id, $server_id);
 
-		if(isset($data["Email"]["Read"]) === false)
+		if(! isset($data["Email"]["Read"]))
 			$retval[0] ++;
 		elseif($data["Email"]["Read"] == 0)
 			$retval[0] ++;
@@ -9455,7 +8955,7 @@ function active_sync_mail_file_size($size)
 	{
 	$unit = 0;
 
-	while(($size < 1000) === false)
+	while($size > 999)
 		{
 		$size = $size / 1024;
 		$unit ++;
@@ -9550,7 +9050,7 @@ function active_sync_mail_header_parameter_decode($string, $search = "")
 
 	if($search == "")
 		$retval = $string;
-	elseif(isset($data[$search]) === false)
+	elseif(! isset($data[$search]))
 		$retval = "";
 	elseif($search == "charset")
 		$retval = strtoupper($data[$search]); # this can be trap !!! utf-8 | UTF-8
@@ -9576,80 +9076,74 @@ function active_sync_mail_header_parameter_trim($string)
 
 function active_sync_mail_is_forward($subject)
 	{
-	$table = array();
-
-	$table["da"] = array("VS");		# danish
-	$table["de"] = array("WG");		# german
-	$table["el"] = array("ΠΡΘ");		# greek
-	$table["en"] = array("FW", "FWD");	# english
-	$table["es"] = array("RV");		# spanish
-	$table["fi"] = array("VL");		# finnish
-	$table["fr"] = array("TR");		# french
-	$table["he"] = array("הועבר");		# hebrew
-	$table["is"] = array("FS");		# icelandic
-	$table["it"] = array("I");		# italian
-	$table["nl"] = array("Doorst");		# dutch
-	$table["no"] = array("VS");		# norwegian
-	$table["pl"] = array("PD");		# polish
-	$table["pt"] = array("ENC");		# portuguese
-	$table["ro"] = array("Redirecţionat");	# romanian
-	$table["sv"] = array("VB");		# swedish
-	$table["tr"] = array("İLT");		# turkish
-	$table["zh"] = array("转发");		# chinese
+	$table = array
+		(
+		"da" => array("VS"),		# danish
+		"de" => array("WG"),		# german
+		"el" => array("ΠΡΘ"),		# greek
+		"en" => array("FW", "FWD"),	# english
+		"es" => array("RV"),		# spanish
+		"fi" => array("VL"),		# finnish
+		"fr" => array("TR"),		# french
+		"he" => array("הועבר"),		# hebrew
+		"is" => array("FS"),		# icelandic
+		"it" => array("I"),		# italian
+		"nl" => array("Doorst"),	# dutch
+		"no" => array("VS"),		# norwegian
+		"pl" => array("PD"),		# polish
+		"pt" => array("ENC"),		# portuguese
+		"ro" => array("Redirecţionat"),	# romanian
+		"sv" => array("VB"),		# swedish
+		"tr" => array("İLT"),		# turkish
+		"zh" => array("转发")		# chinese
+		);
 
 	foreach($table as $language => $abbreviations)
-		{
 		foreach($abbreviations as $abbreviation)
 			{
-			$abbreviation = $abbreviation . ":";
+			$abbreviation .= ":";
 
-			if(strtolower(substr($subject, 0, strlen($abbreviation))) != strtolower($abbreviation))
-				continue;
-
-			return(1);
+			if(strtolower(substr($subject, 0, strlen($abbreviation))) == strtolower($abbreviation))
+				return(true);
 			}
-		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_mail_is_reply($subject)
 	{
-	$table = array();
-
-	$table["da"] = array("SV");		# danish
-	$table["de"] = array("AW");		# german
-	$table["el"] = array("ΑΠ", "ΣΧΕΤ");	# greek
-	$table["en"] = array("RE");		# english
-	$table["es"] = array("RE");		# spanish
-	$table["fi"] = array("VS");		# finnish
-	$table["fr"] = array("RE");		# french
-	$table["he"] = array("תגובה");		# hebrew
-	$table["is"] = array("SV");		# icelandic
-	$table["it"] = array("R", "RIF");	# italian
-	$table["nl"] = array("Antw");		# dutch
-	$table["no"] = array("SV");		# norwegian
-	$table["pl"] = array("Odp");		# polish
-	$table["pt"] = array("RES");		# portuguese
-	$table["ro"] = array("RE");		# romanian
-	$table["sv"] = array("SV");		# swedish
-	$table["tr"] = array("YNT");		# turkish
-	$table["zh"] = array("回复");		# chinese
+	$table = array
+		(
+		"da" => array("SV"),		# danish
+		"de" => array("AW"),		# german
+		"el" => array("ΑΠ", "ΣΧΕΤ"),	# greek
+		"en" => array("RE"),		# english
+		"es" => array("RE"),		# spanish
+		"fi" => array("VS"),		# finnish
+		"fr" => array("RE"),		# french
+		"he" => array("תגובה"),		# hebrew
+		"is" => array("SV"),		# icelandic
+		"it" => array("R", "RIF"),	# italian
+		"nl" => array("Antw"),		# dutch
+		"no" => array("SV"),		# norwegian
+		"pl" => array("Odp"),		# polish
+		"pt" => array("RES"),		# portuguese
+		"ro" => array("RE"),		# romanian
+		"sv" => array("SV"),		# swedish
+		"tr" => array("YNT"),		# turkish
+		"zh" => array("回复")		# chinese
+		);
 
 	foreach($table as $language => $abbreviations)
-		{
 		foreach($abbreviations as $abbreviation)
 			{
-			$abbreviation = $abbreviation . ":";
+			$abbreviation .= ":";
 
 			if(strtolower(substr($subject, 0, strlen($abbreviation))) == strtolower($abbreviation))
-				continue;
-
-			return(1);
+				return(true);
 			}
-		}
 
-	return(0);
+	return(false);
 	}
 
 function active_sync_mail_parse($user, $collection_id, $server_id, $mime)
@@ -9666,7 +9160,7 @@ function active_sync_mail_parse($user, $collection_id, $server_id, $mime)
 
 	foreach(array("text/plain" => 1, "text/html" => 2, "application/rtf" => 3) as $content_type => $value)
 		{
-		if(isset($head_parsed["Content-Type"]) === false)
+		if(! isset($head_parsed["Content-Type"]))
 			continue;
 
 		if($head_parsed["Content-Type"] != $content_type)
@@ -9677,38 +9171,26 @@ function active_sync_mail_parse($user, $collection_id, $server_id, $mime)
 		break;
 		}
 
-	if(isset($head_parsed["Date"]) === false)
-		$data["Email"]["DateReceived"] = date("Y-m-d\TH:i:s.000\Z");
-	else
+	if(isset($head_parsed["Date"]))
 		$data["Email"]["DateReceived"] = date("Y-m-d\TH:i:s.000\Z", strtotime($head_parsed["Date"]));
+	else
+		$data["Email"]["DateReceived"] = date("Y-m-d\TH:i:s.000\Z");
 
-	if(isset($data["Email"]["Subject"]) === false)
+	if(! isset($data["Email"]["Subject"]))
 		$data["Email"]["Subject"] = "...";
 
 	foreach(array("ContentClass" => "urn:content-classes:message", "Importance" => 1, "MessageClass" => "IPM.Note", "Read" => 0) as $token => $value)
 		$data["Email"][$token] = $value;
 
 	foreach(array("low" => 0, "normal" => 1, "high" => 2) as $test => $importance)
-		{
-		if(isset($head_parsed["Importance"]) === false)
-			continue;
-
-		if($head_parsed["Importance"] != $test)
-			continue;
-
-		$data["Email"]["Importance"] = $importance;
-		}
+		if(isset($head_parsed["Importance"]))
+			if($head_parsed["Importance"] == $test)
+				$data["Email"]["Importance"] = $importance;
 
 	foreach(array(5 => 0, 3 => 1, 1 => 2) as $test => $importance)
-		{
-		if(isset($head_parsed["X-Priority"]) === false)
-			continue;
-
-		if($head_parsed["X-Priority"] != $test)
-			continue;
-
-		$data["Email"]["Importance"] = $importance;
-		}
+		if(isset($head_parsed["X-Priority"]))
+			if($head_parsed["X-Priority"] == $test)
+				$data["Email"]["Importance"] = $importance;
 
 	$translation_table = array();
 
@@ -9716,18 +9198,10 @@ function active_sync_mail_parse($user, $collection_id, $server_id, $mime)
 	$translation_table["Email2"] = array("ReceivedAsBcc" => "Bcc", "Sender" => "Sender");
 
 	foreach($translation_table as $codepage => $token_translation)
-		{
 		foreach($token_translation as $token => $field)
-			{
-			if(isset($head_parsed[$field]) === false)
-				continue;
-
-			if(strlen($head_parsed[$field]) == 0)
-				continue;
-
-			$data[$codepage][$token] = $head_parsed[$field];
-			}
-		}
+			if(isset($head_parsed[$field]))
+				if(strlen($head_parsed[$field]) > 0)
+					$data[$codepage][$token] = $head_parsed[$field];
 
 #	$thread_topic = $data["Email"]["Subject"];
 
@@ -9991,7 +9465,7 @@ function active_sync_mail_parse_body_part($user, $collection_id, $server_id, & $
 
 			$temp = (substr($temp, 0, 10) == "ISO-8859-1" ? utf8_encode(urldecode(substr($temp, 12))) : $temp);
 
-			$content_type_name = $content_type_name . $temp;
+			$content_type_name .= $temp;
 			}
 		}
 
@@ -10106,7 +9580,7 @@ function active_sync_mail_signature_save($data, $body)
 
 	$crt = CRT_DIR . "/certs/" . $mail . ".pem";
 
-	if(file_exists($crt) === false)
+	if(! file_exists($crt))
 		{
 		$body = base64_encode($body);
 
@@ -10202,7 +9676,7 @@ function active_sync_maildir_exists($user)
 	{
 	$path = active_sync_postfix_virtual_mailbox_base();
 
-	return(is_dir($path . "/" . $user) ? 1 : 0);
+	return(is_dir($path . "/" . $user));
 	}
 
 function active_sync_maildir_sync()
@@ -10228,7 +9702,7 @@ function active_sync_maildir_sync()
 
 		foreach($list as $server_id => $null)
 			{
-			if(file_exists($maildir . "/" . $server_id) === false)
+			if(! file_exists($maildir . "/" . $server_id))
 				{
 				if(file_exists(DAT_DIR . "/" . $users["login"][$user_id]["User"] . "/" . active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 2) . "/" . $server_id . ".data") !== false)
 					unlink(DAT_DIR . "/" . $users["login"][$user_id]["User"] . "/" . active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 2) . "/" . $server_id . ".data");
@@ -10236,7 +9710,7 @@ function active_sync_maildir_sync()
 				unset($list[$server_id]);
 				}
 
-			if(file_exists(DAT_DIR . "/" . $users["login"][$user_id]["User"] . "/" . active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 2) . "/" . $server_id . ".data") === false)
+			if(! file_exists(DAT_DIR . "/" . $users["login"][$user_id]["User"] . "/" . active_sync_get_collection_id_by_type($users["login"][$user_id]["User"], 2) . "/" . $server_id . ".data"))
 				{
 				if(file_exists($maildir . "/" . $server_id) !== false)
 					unlink($maildir . "/" . $server_id);
@@ -10279,7 +9753,7 @@ function active_sync_maildir_sync()
 
 				foreach($data["Body"] as $id => $null)
 					{
-					if(isset($data["Body"][$id]["Type"]) === false)
+					if(! isset($data["Body"][$id]["Type"]))
 						continue;
 
 					if($data["Body"][$id]["Type"] != 4) # Mime
@@ -10591,7 +10065,7 @@ function active_sync_put_attendee_status($user, $server_id, $email, $attendee_st
 		{
 		foreach($data["Attendees"] as $id => $attendee)
 			{
-			if(isset($attendee["Email"]) === false)
+			if(! isset($attendee["Email"]))
 				continue;
 
 			if($attendee["Email"] != $email)
@@ -10690,7 +10164,7 @@ function active_sync_send_mail($user, $mime)
 
 	# don't we need a recipient here? by settting to null we got an empty field.
 
-	mail($head_parsed["To"], (isset($head_parsed["Subject"]) === false ? "" : $head_parsed["Subject"]), $mail_struct["body"], implode("\n", $additional_headers), "-f no-reply@" . $host);
+	mail($head_parsed["To"], (isset($head_parsed["Subject"]) ? $head_parsed["Subject"] : ""), $mail_struct["body"], implode("\n", $additional_headers), "-f no-reply@" . $host);
 	}
 
 function active_sync_send_sms($user, $mime)
@@ -10767,14 +10241,10 @@ function active_sync_user_exist($expression)
 	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
 
 	foreach($settings["login"] as $user)
-		{
-		if($user["User"] != $expression)
-			continue;
+		if($user["User"] == $expression)
+			return(true);
 
-		return(1);
-		}
-
-	return(0);
+	return(false);
 	}
 
 function active_sync_vcalendar_parse(& $data)
@@ -10882,12 +10352,8 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 	$retval[] = implode(":", array("UID", $server_id));
 
 	foreach(array("FileAs" => "FN", "Email1Address" => "EMAIL", "Email2Address" => "EMAIL", "Email3Address" => "EMAIL", "JobTitle" => "ROLE", "WebPage" => "URL", "Birthday" => "BDAY", "ManagerName" => "MANAGER", "Spouse" => "SPOUSE", "AssistantName" => "ASSISTANT", "Anniversary" => "ANNIVERSARY") as $token => $key)
-		{
-		if(isset($data["Contacts"][$token]) === false)
-			continue;
-
-		$retval[] = implode(":", array($key, $data["Contacts"][$token]));
-		}
+		if(isset($data["Contacts"][$token]))
+			$retval[] = implode(":", array($key, $data["Contacts"][$token]));
 
 	if($version == 21)
 		$fields = array("BusinessFaxNumber" => "WORK;FAX", "HomeFaxNumber" => "HOME;FAX", "MobilePhoneNumber" => "CELL", "PagerNumber" => "PAGER", "HomePhoneNumber" => "HOME", "BusinessPhoneNumber" => "WORK", "CarPhoneNumber" => "CAR");
@@ -10899,12 +10365,8 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 		$fields = array("BusinessFaxNumber" => "TYPE=work,fax", "HomeFaxNumber" => "TYPE=home,fax", "MobilePhoneNumber" => "TYPE=cell", "PagerNumber" => "TYPE=pager", "HomePhoneNumber" => "TYPE=home,voice", "BusinessPhoneNumber" => "TYPE=work,voice", "CarPhoneNumber" => "TYPE=car");
 
 	foreach($fields as $token => $key)
-		{
-		if(isset($data["Contacts"][$token]) === false)
-			continue;
-
-		$retval[] = implode(":", array("TEL;" . $key, $data["Contacts"][$token]));
-		}
+		if(isset($data["Contacts"][$token]))
+			$retval[] = implode(":", array("TEL;" . $key, $data["Contacts"][$token]));
 
 	$x = array();
 
@@ -10961,7 +10423,7 @@ function active_sync_vcard_from_data($user, $collection_id, $server_id, $version
 
 	foreach(array("IMAddress", "IMAddress2", "IMAddress3") as $token)
 		{
-		if(isset($data["Contacts2"][$token]) === false)
+		if(! isset($data["Contacts2"][$token]))
 			continue;
 
 		if(strpos($data["Contacts2"][$token], ":") === false)
@@ -11104,7 +10566,7 @@ function active_sync_wbxml_get_string($input, & $position = 0)
 		if($char == "\x00")
 			break;
 
-		$string = $string . $char;
+		$string .= $char;
 		}
 
 	return($string);
@@ -11114,7 +10576,7 @@ function active_sync_wbxml_get_string_length($input, & $position = 0, $length = 
 	{
 	$string = substr($input, $position, $length);
 
-	$position = $position + $length;
+	$position += $length;
 
 	return($string);
 	}
@@ -11973,16 +11435,16 @@ class active_sync_wbxml_response
 
 	function x_close($token = "")
 		{
-		$this->response = $this->response . chr(0x01);
+		$this->response .= chr(0x01);
 		}
 
 	function x_init()
 		{
 		$this->response = "";
-		$this->response = $this->response . "\x03";
-		$this->response = $this->response . "\x01";
-		$this->response = $this->response . "\x6A";
-		$this->response = $this->response . "\x00";
+		$this->response .= "\x03";
+		$this->response .= "\x01";
+		$this->response .= "\x6A";
+		$this->response .= "\x00";
 
 		$this->codepage = 0x00;
 		}
@@ -12002,26 +11464,26 @@ class active_sync_wbxml_response
 			}
 		while($integer > 0x00);
 
-		$this->response = $this->response . $retval;
+		$this->response .= $retval;
 		}
 
 	function x_open($token, $contains_data = true, $has_attribute = false)
 		{
 		$data = active_sync_wbxml_get_token_id_by_name($this->codepage, $token);
 
-		$data = $data | ($has_attribute === false ? 0x00 : 0x80);
-		$data = $data | ($contains_data === false ? 0x00 : 0x40);
+		$data |= ($has_attribute === false ? 0x00 : 0x80);
+		$data |= ($contains_data === false ? 0x00 : 0x40);
 
-		$this->response = $this->response . chr($data);
+		$this->response .= chr($data);
 		}
 
 	function x_print($string)
 		{
 		if(strpos($string, "\x00") === false)
 			{
-			$this->response = $this->response . chr(0x03);
-			$this->response = $this->response . $string;
-			$this->response = $this->response . chr(0x00);
+			$this->response .= chr(0x03);
+			$this->response .= $string;
+			$this->response .= chr(0x00);
 			}
 		else
 			$this->x_print_bin($string);
@@ -12029,25 +11491,25 @@ class active_sync_wbxml_response
 
 	function x_print_bin($string)
 		{
-		$this->response = $this->response . chr(0xC3);
+		$this->response .= chr(0xC3);
 
 		$length = strlen($string);
 
 		$this->x_print_multibyte_integer($length);
 
-		$this->response = $this->response . $string;
+		$this->response .= $string;
 		}
 
 	function x_switch($codepage)
 		{
-		$codepage = (is_numeric($codepage) === false ? active_sync_wbxml_get_codepage_id_by_name($codepage) : $codepage);
+		$codepage = (is_numeric($codepage) ? $codepage : active_sync_wbxml_get_codepage_id_by_name($codepage));
 
 		if($this->codepage != $codepage)
 			{
 			$this->codepage = $codepage;
 
-			$this->response = $this->response . chr(0x00);
-			$this->response = $this->response . chr($this->codepage);
+			$this->response .= chr(0x00);
+			$this->response .= chr($this->codepage);
 			}
 		}
 	}
