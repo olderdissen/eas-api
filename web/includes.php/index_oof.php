@@ -1,7 +1,7 @@
 <?
 if($Request["Cmd"] == "Oof")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	################################################################################
 
@@ -129,7 +129,7 @@ if($Request["Cmd"] == "Oof")
 
 if($Request["Cmd"] == "OofSave")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach(array("F1", "F2", "StartTime", "EndTime", "F5", "F6", "F7", "F8") as $field)
 		$retval[$field] = (isset($_POST[$field])  === false ? "" : $_POST[$field]);
@@ -216,7 +216,7 @@ if($Request["Cmd"] == "OofSave")
 
 	$settings["OOF"] = $data;
 
-	active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
+	active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
 
 	print(1);
 	}

@@ -19,7 +19,7 @@ if($Request["Cmd"] == "Menu")
 
 			break;
 		case("Folders");
-			$folders = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+			$folders = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 			$default = active_sync_get_class_by_collection_id($Request["AuthUser"], $Request["CollectionId"]);
 
@@ -47,7 +47,7 @@ if($Request["Cmd"] == "MenuItems")
 
 	print("<hr>");
 
-	$folders = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$folders = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	html_folders_menu($folders["SyncDat"]);
 
@@ -56,7 +56,13 @@ if($Request["Cmd"] == "MenuItems")
 	foreach(array("Gruppen" => "Category", "Geräte" => "Device", "Ordner" => "Folder", "OOF" => "Oof", "Einstellungen" => "Settings") as $menu => $command)
 		html_item("blank.png", "<span class=\"span_link\" onclick=\"handle_link({ cmd : '" . $command . "' });\">" . $menu . "<span>");
 
-	$admin = active_sync_get_is_admin($Request["AuthUser"]);
+	$admin = "F";
+	
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/login.data");
+
+	foreach($settings["login"] as $login)
+		if($login["User"] == $_SERVER["PHP_AUTH_USER"])
+			$admin = $login["IsAdmin"];
 
 	if($admin == "T")
 		{
@@ -88,9 +94,26 @@ function html_folders_menu($folders, $level = 0, $parent_id = 0)
 
 			if($class == "Email")
 				{
-				list($unread, $read) = active_sync_mail_count($Request["AuthUser"], $folder_data["ServerId"]);
+				$read = 0;
+				$unread = 0;
 
-				$text = $text . "<small id=\"collection:" . $folder_data["ServerId"] . "\">" . ($unread > 0 ? " (" . $unread . ")" : "") . "</small>";
+				foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $folder_data["ServerId"] . "/*.data") as $file)
+					{
+					$server_id = basename($file, ".data");
+
+					$data = active_sync_get_settings_data($Request["AuthUser"], $folder_data["ServerId"], $server_id);
+
+					if(! isset($data["Email"]["Read"]))
+						$unread ++;
+					elseif($data["Email"]["Read"] == 0)
+						$unread ++;
+					elseif($data["Email"]["Read"] == 1)
+						$read ++;
+					else
+						$read ++;
+					}
+
+				$text .= "<small id=\"collection:" . $folder_data["ServerId"] . "\">" . ($unread ? " (" . $unread . ")" : "") . "</small>";
 				}
 
 			html_item($symbol, $text);

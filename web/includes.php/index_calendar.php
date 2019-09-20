@@ -19,7 +19,7 @@ if($Request["Cmd"] == "Search")
 
 		if(strlen($Request["Search"]) > 0)
 			{
-			foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
+			foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
 				{
 				$server_id = basename($file, ".data");
 

@@ -19,7 +19,7 @@ if($Request["Cmd"] == "Birthday")
 			}
 		else
 			{
-			foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
+			foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
 				{
 				$server_id = basename($file, ".data");
 
@@ -56,8 +56,8 @@ if($Request["Cmd"] == "Move")
 		if($Request["DstMsgId"] == "") # new name
 			$Request["DstMsgId"] = active_sync_create_guid_filename($Request["AuthUser"], $Request["DstFldId"]);
 
-		$Src = DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["SrcFldId"] . "/" . $Request["SrcMsgId"] . ".data";
-		$Dst = DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DstFldId"] . "/" . $Request["DstMsgId"] . ".data";
+		$Src = ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["SrcFldId"] . "/" . $Request["SrcMsgId"] . ".data";
+		$Dst = ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DstFldId"] . "/" . $Request["DstMsgId"] . ".data";
 
 		$status = (rename($Src, $Dst) === false ? 7 : 1);
 
@@ -149,7 +149,7 @@ if($Request["Cmd"] == "Search")
 
 		if(strlen($Request["Search"]) > 0)
 			{
-			foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
+			foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["CollectionId"] . "/*.data") as $file)
 				{
 				$server_id = basename($file, ".data");
 

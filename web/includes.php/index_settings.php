@@ -1,7 +1,7 @@
 <?
 if($Request["Cmd"] == "Settings")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach(active_sync_get_default_settings() as $key => $value)
 		$settings["Settings"][$key] = (isset($settings["Settings"][$key]) ? $settings["Settings"][$key] : $value);
@@ -192,14 +192,14 @@ if($Request["Cmd"] == "Settings")
 
 if($Request["Cmd"] == "SettingsSave")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach(active_sync_get_default_settings() as $key => $val)
 		$settings["Settings"][$key] = (isset($_POST[$key]) ? $_POST[$key] : "");
 
 	$settings["Settings"]["PhoneOnly"] = ($settings["Settings"]["PhoneOnly"] ? 1 : 0);
 
-	active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
+	active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
 
 	print(1);
 	}

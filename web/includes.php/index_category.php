@@ -5,7 +5,7 @@ if($Request["Cmd"] == "Category")
 
 	$collection_id	= active_sync_get_collection_id_by_type($user, 9); # Contacts
 
-	$settings	= active_sync_get_settings(DAT_DIR . "/" . $user . ".sync");
+	$settings	= active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $user . ".sync");
 
 	$categories_of_contacts = active_sync_get_categories_by_collection_id($user, $collection_id);
 
@@ -168,11 +168,11 @@ if($Request["Cmd"] == "CategoryCreate")
 		$state = 2;
 	else
 		{
-		$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+		$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 		$settings["Categories"][$category] = 1;
 
-		active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"], $settings);
+		active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"], $settings);
 
 		$state = 3;
 		}
@@ -186,13 +186,13 @@ if($Request["Cmd"] == "CategoryDelete")
 		print(4);
 	else
 		{
-		$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+		$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 		unset($settings["Categories"][$Request["ItemId"]]);
 
-		active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
+		active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
 
-		foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/9009/*.data") as $file)
+		foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/9009/*.data") as $file)
 			{
 			$server_id = basename($file, ".data");
 
@@ -293,7 +293,7 @@ if($Request["Cmd"] == "CategoryList")
 
 	$collection_id	= active_sync_get_collection_id_by_type($user, 9); # Contacts
 
-	$settings	= active_sync_get_settings(DAT_DIR . "/" . $user . ".sync");
+	$settings	= active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $user . ".sync");
 
 	$categories_of_contacts = active_sync_get_categories_by_collection_id($user, $collection_id);
 
@@ -339,12 +339,12 @@ if($Request["Cmd"] == "CategorySave")
 
 	$categories	= active_sync_get_categories_by_collection_id($Request["AuthUser"], $collection_id);
 
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach($categories as $category => $count)
 		$settings["Categories"][$category] = (isset($_POST["_" . $category]) ? 1 : 0);
 
-	active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
+	active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
 
 	print(1);
 	}
@@ -353,7 +353,7 @@ if($Request["Cmd"] == "CategoryState")
 	{
 	$retval = array();
 
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	if(isset($settings["Categories"]) === true)
 		$retval = $settings["Categories"];
@@ -381,7 +381,7 @@ if($Request["Cmd"] == "CategoryUpdate")
 		$o = $Request["ItemId"];
 		$n = $Request["LongId"];
 
-		$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+		$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 		if(isset($settings["Categories"][$o]) === true) # if setting for this category is available
 			{
@@ -390,9 +390,9 @@ if($Request["Cmd"] == "CategoryUpdate")
 			unset($settings["Categories"][$o]);
 			}
 
-		active_sync_put_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
+		active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync", $settings);
 
-		foreach(glob(DAT_DIR . "/" . $Request["AuthUser"] . "/9009/*.data") as $file)
+		foreach(glob(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/9009/*.data") as $file)
 			{
 			$server_id = basename($file, ".data");
 

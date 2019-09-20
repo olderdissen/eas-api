@@ -38,7 +38,7 @@ if($Request["Cmd"] == "Device")
 
 			foreach($devices as $DeviceId)
 				{
-				$data = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $DeviceId . ".sync");
+				$data = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $DeviceId . ".sync");
 
 				foreach(active_sync_get_default_info() as $key => $value)
 					$data["DeviceInformation"][$key] = (isset($data["DeviceInformation"][$key]) ? $data["DeviceInformation"][$key] : $value);
@@ -51,15 +51,14 @@ if($Request["Cmd"] == "Device")
 						print(isset($data["DeviceInformation"]["FriendlyName"]) ? $data["DeviceInformation"]["FriendlyName"] : "&nbsp;");
 					print("</td>");
 					print("<td>");
-						print(date("Y-m-d-H-i-s", filemtime(DAT_DIR . "/" . $Request["AuthUser"]  . "/" . $DeviceId . ".sync")));
+						print(date("Y-m-d-H-i-s", filemtime(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"]  . "/" . $DeviceId . ".sync")));
 					print("</td>");
 					print("<td>");
 						print("[");
 
 							if(count($data["DeviceInformation"]) == 0)
 								print("Details");
-
-							if(count($data["DeviceInformation"]) != 0)
+							else
 								{
 								print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'PopupDevice', device_id : '" . $DeviceId . "' });\">");
 									print("Details");
@@ -99,24 +98,24 @@ if($Request["Cmd"] == "Device")
 
 if($Request["Cmd"] == "DeviceDelete")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	foreach($settings["SyncDat"] as $folder_id => $folder_data)
-		@ unlink(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $folder_data["ServerId"] . "/" . $Request["DeviceId"] . ".sync");
+		@ unlink(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $folder_data["ServerId"] . "/" . $Request["DeviceId"] . ".sync");
 
-	@ unlink(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DeviceId"] . ".sync");
+	@ unlink(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DeviceId"] . ".sync");
 
 	print(1);
 	}
 
 if($Request["Cmd"] == "DeviceInfo")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DeviceId"] . ".sync");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DeviceId"] . ".sync");
 
 	foreach(active_sync_get_default_info() as $key => $value)
 		$settings["DeviceInformation"][$key] = (isset($settings["DeviceInformation"][$key]) ? $settings["DeviceInformation"][$key] : $value);
 
-	$data = json_encode($data["DeviceInformation"]);
+	$data = json_encode($settings["DeviceInformation"]);
 
 #	header("Content-Type: application/json; charset=\"UTF-8\"");
 

@@ -66,29 +66,50 @@ if($Request["Cmd"] == "Flag")
 
 		if($Request["LongId"] == 0)
 			{
-			$data["Flag"]["Email"]["Status"]	= 2;
-			$data["Flag"]["Email"]["FlagType"]	= "Follow Up";
-
-			$data["Flag"]["Tasks"]["StartDate"]	= date("Y-m-d\TH:i:s\Z" + (1 * 86400)); # + 1 day
-			$data["Flag"]["Tasks"]["DueDate"]	= date("Y-m-d\TH:i:s\Z" + (5 * 86400)); # + 5 days
-
-			$data["Flag"]["Tasks"]["UtcStartDate"]	= date("Y-m-d\TH:i:s\Z" + (1 * 86400)); # + 1 day
-			$data["Flag"]["Tasks"]["UtcDueDate"]	= date("Y-m-d\TH:i:s\Z" + (5 * 86400)); # + 5 days
-			$data["Flag"]["Tasks"]["ReminderSet"]	= 0;
-			$data["Flag"]["Tasks"]["ReminderTime"]	= date("Y-m-d\TH:i:s\Z");
+			$data["Flag"] = array
+				(
+				"Email" => array
+					(
+					"Status" => 2,
+					"FlagType" => "Follow Up"
+					),
+				"Tasks" => array
+					(
+					"StartDate" => date("Y-m-d\TH:i:s\Z" + (1 * 86400)),	# + 1 day
+					"DueDate" => date("Y-m-d\TH:i:s\Z" + (5 * 86400)),	# + 5 days
+					"UtcStartDate" => date("Y-m-d\TH:i:s\Z" + (1 * 86400)),	# + 1 day
+					"UtcDueDate" => date("Y-m-d\TH:i:s\Z" + (5 * 86400)),	# + 5 days
+					"ReminderSet" => 0,
+					"ReminderTime" => date("Y-m-d\TH:i:s\Z")
+					)
+				);
 			}
 
 		if($Request["LongId"] == 1)
 			{
-			$data["Flag"]["Email"]["Status"]	= 1;
-			$data["Flag"]["Email"]["CompleteTime"]	= date("Y-m-d\TH:i:s\Z", 0 - 3600);
-
-			$data["Flag"]["Tasks"]["DateCompleted"]	= date("Y-m-d\TH:i:s\Z");
+			$data["Flag"] = array
+				(
+				"Email" => array
+					(
+					"Status" => 1,
+					"CompleteTime" => date("Y-m-d\TH:i:s\Z", 0 - 3600)
+					),
+				"Tasks" => array
+					(
+					"DateCompleted" => date("Y-m-d\TH:i:s\Z")
+					)
+				);
 			}
 
 		if($Request["LongId"] == 2)
 			{
-			$data["Flag"]["Email"]["Status"]	= 0;
+			$data["Flag"] = array
+				(
+				"Email" => array
+					(
+					"Status" => 0
+					)
+				);
 			}
 
 		active_sync_put_settings_data($Request["AuthUser"], $Request["CollectionId"], $Request["ServerId"], $data);
@@ -109,7 +130,7 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 
 		$data = active_sync_get_settings_data($user, $collection_id, $request_id);
 
-		unlink(DAT_DIR . "/" . $user . "/" . $collection_id . "/" . $request_id . ".data");
+		unlink(ACTIVE_SYNC_DAT_DIR . "/" . $user . "/" . $collection_id . "/" . $request_id . ".data");
 
 		$calendar_id = active_sync_get_calendar_by_uid($user, $data["meeting"]["Email"]["UID"]);
 
@@ -126,12 +147,8 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 			list($organizer_name, $organizer_mail) = active_sync_mail_parse_address($data["meeting"]["Email"]["Organizer"]);
 
 			foreach(array("OrganizerName" => $organizer_name, "OrganizerEmail" => $organizer_mail) as $token => $value)
-				{
-				if($value == "")
-					continue;
-
-				$calendar["Calendar"][$token] = $value;
-				}
+				if($value != "")
+					$calendar["Calendar"][$token] = $value;
 
 			$calendar["Calendar"]["MeetingStatus"] = 3;
 
@@ -168,12 +185,12 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 
 			$description[] = "Wann: " . date("d.m.Y H:i:s", strtotime($data["meeting"]["Email"]["StartTime"]));
 
-			if(isset($data["meeting"]["Email"]["Location"]) === true)
+			if(isset($data["meeting"]["Email"]["Location"]))
 				$description[] = "Wo: " . $data["meeting"]["Email"]["Location"];
 
 			$description[] = "*~*~*~*~*~*~*~*~*~*";
 
-			if(isset($data["Email"]["Body"]["Data"]) === true)
+			if(isset($data["Email"]["Body"]["Data"]))
 				$description[] = $data["Email"]["Body"]["Data"];
 
 			$mime = array();
@@ -182,12 +199,8 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 			$mime[] = "To: " . $data["Email"]["From"];
 
 			foreach(array("Accepted" => 1, "Tentative" => 2, "Declined" => 3) as $subject => $value)
-				{
-				if($user_response != $value)
-					continue;
-
-				$mime[] = "Subject: " . $subject . ": " . $data["Email"]["Subject"];
-				}
+				if($user_response == $value)
+					$mime[] = "Subject: " . $subject . ": " . $data["Email"]["Subject"];
 
 			$mime[] = "Content-Type: multipart/alternative; boundary=\"" . $boundary . "\"";
 			$mime[] = "";
@@ -198,12 +211,8 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 			$mime[] = "";
 
 			foreach(array("Accepted" => 1, "Tentative" => 2, "Declined" => 3) as $message => $value)
-				{
-				if($user_response != $value)
-					continue;
-
-				$mime[] = $message;
-				}
+				if($user_response == $value)
+					$mime[] = $message;
 
 			$mime[] = "";
 			$mime[] = "--" . $boundary;
@@ -220,31 +229,21 @@ if($Request["Cmd"] == "Meeting") # MeetingResponse
 					foreach(array("DTSTAMP" => "DtStamp", "DTSTART" => "StartTime", "DTEND" => "EndTime") as $key => $token)
 						$mime[] = $key . ":" . date("Y-m-d\TH:i:s\Z", strtotime($data["meeting"]["Email"][$token]));
 
-					if(isset($data["meeting"]["Location"]) === true)
+					if(isset($data["meeting"]["Location"]))
 						$mime[] = "LOCATION: " . $data["meeting"]["Email"]["Location"];
 
-					if(isset($data["Email"]["Subject"]) === true)
-						{
+					if(isset($data["Email"]["Subject"]))
 						$mime[] = "SUMMARY: " . $data["Email"]["Subject"]; # take this from email subject
-						}
 
 					$mime[] = "DESCRIPTION:" . implode("\\n", $description);
 
 					foreach(array("FALSE" => 0, "TRUE" => 1) as $key => $value)
-						{
-						if($data["meeting"]["Email"]["AllDayEvent"] != $value)
-							continue;
-
-						$mime[] = "X-MICROSOFT-CDO-ALLDAYEVENT:" . $key;
-						}
+						if($data["meeting"]["Email"]["AllDayEvent"] == $value)
+							$mime[] = "X-MICROSOFT-CDO-ALLDAYEVENT:" . $key;
 
 					foreach(array("ACCEPTED" => 1, "TENTATIVE" => 2, "DECLINED" => 3) as $partstat => $value)
-						{
-						if($user_response != $value)
-							continue;
-
-						$mime[] = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=" . $partstat . ";RSVP=TRUE:MAILTO:" . $user . "@" . $host;
-						}
+						if($user_response == $value)
+							$mime[] = "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=" . $partstat . ";RSVP=TRUE:MAILTO:" . $user . "@" . $host;
 
 					list($organizer_name, $organizer_mail) = active_sync_mail_parse_address($data["meeting"]["Email"]["Organizer"]);
 
@@ -279,8 +278,8 @@ if($Request["Cmd"] == "Move")
 		if($Request["DstMsgId"] == "") # new name
 			$Request["DstMsgId"] = active_sync_create_guid_filename($Request["AuthUser"], $Request["DstFldId"]);
 
-		$Src = DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["SrcFldId"] . "/" . $Request["SrcMsgId"] . ".data";
-		$Dst = DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DstFldId"] . "/" . $Request["DstMsgId"] . ".data";
+		$Src = ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["SrcFldId"] . "/" . $Request["SrcMsgId"] . ".data";
+		$Dst = ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . "/" . $Request["DstFldId"] . "/" . $Request["DstMsgId"] . ".data";
 
 		$status = (rename($Src, $Dst) ? 1 : 7);
 
@@ -324,22 +323,44 @@ if($Request["Cmd"] == "Show")
 			$data["Email"]["DateReceived"]		= "";
 			$data["Email"]["Subject"]		= "";
 
-			$data["Body"][0]["Data"]		= "";
-			$data["Body"][0]["Type"]		= 1;
-			$data["Body"][0]["EstimatedDataSize"]	= 0;
+			$data["Body"][0] = array
+				(
+				"Data" => "",
+				"Type" => 1,
+				"EstimatedDataSize" => 0
+				);
 			}
 		else
 			{
-			$data["Email"]["Read"] = 1;
+			if($data["Email"]["Read"] != 1)
+				{
+				$data["Email"]["Read"] = 1;
 
-			active_sync_put_settings_data($Request["AuthUser"], $Request["CollectionId"], $Request["ServerId"], $data);
+				active_sync_put_settings_data($Request["AuthUser"], $Request["CollectionId"], $Request["ServerId"], $data);
+				}
 
 			################################################################################
 
-			if(isset($data["Email"]["MessageClass"]) === false)
-				{
-				}
-			elseif($data["Email"]["MessageClass"] == "IPM.Note.SMIME") # encrypted
+			if(isset($data["Email"]["MessageClass"]))
+				if($data["Email"]["MessageClass"] == "IPM.Note.SMIME") # encrypted
+					{
+					$user = $Request["AuthUser"];
+
+					$file = $Request["ServerId"];
+
+					$mime = "";
+
+					foreach($data["Body"] as $body)
+						if(isset($body["Type"]))
+							if($body["Type"] == 4)
+								$mime = $body["Data"];
+
+					$mime = active_sync_mail_body_smime_decode($mime);
+
+					$data = active_sync_mail_parse($user, $file, $mime);
+					}
+
+			if(isset($data["file"]))
 				{
 				$user = $Request["AuthUser"];
 
@@ -348,37 +369,9 @@ if($Request["Cmd"] == "Show")
 				$mime = "";
 
 				foreach($data["Body"] as $body)
-					{
-					if(isset($body["Type"]) === false)
-						continue;
-
-					if($body["Type"] != 4)
-						continue;
-
-					$mime = $body["Data"];
-					}
-
-				$mime = active_sync_mail_body_smime_decode($mime);
-
-				$data = active_sync_mail_parse($user, $file, $mime);
-				}
-
-			if(isset($data["file"]) === true)
-				{
-				$user = $Request["AuthUser"];
-
-				$file = $Request["ServerId"];
-
-				foreach($data["Body"] as $body)
-					{
-					if(isset($body["Type"]) === false)
-						continue;
-
-					if($body["Type"] != 4)
-						continue;
-
-					$mime = $body["Data"];
-					}
+					if(isset($body["Type"]))
+						if($body["Type"] == 4)
+							$mime = $body["Data"];
 
 				$mime = active_sync_mail_body_smime_decode($mime);
 
@@ -388,9 +381,14 @@ if($Request["Cmd"] == "Show")
 
 		################################################################################
 
-		$data["Email"]["From"] = (isset($data["Email"]["From"]) ? $data["Email"]["From"] : "");
-		$data["Email"]["DateReceived"] = (isset($data["Email"]["DateReceived"]) ? $data["Email"]["DateReceived"] : "");
-		$data["Email"]["Subject"] = (isset($data["Email"]["Subject"]) ? $data["Email"]["Subject"] : "&nbsp;");
+		if(! isset($data["Email"]["From"]))
+			$data["Email"]["From"] =  "";
+
+		if(! isset($data["Email"]["DateReceived"]))
+			$data["Email"]["DateReceived"] = "";
+
+		if(! isset($data["Email"]["Subject"]))
+			$data["Email"]["Subject"] = "&nbsp;";
 
 		print("<table style=\"height: 100%; width: 100%;\">");
 
@@ -482,7 +480,7 @@ if($Request["Cmd"] == "Show")
 				print("</tr>");
 				}
 
-			if(isset($data["Body"]) === true)
+			if(isset($data["Body"]))
 				{
 				print("<tr>");
 					print("<td colspan=\"3\" style=\"height: 100%;\">");
@@ -494,22 +492,11 @@ if($Request["Cmd"] == "Show")
 											print("<div style=\"padding: 10px;\">");
 
 												foreach($data["Body"] as $body)
-													{
-													if(isset($body["Type"]) === false)
-														continue;
-
-													if($body["Type"] == 1)
-														{
-														$body["Data"] = str_replace(array("<", ">", "\r", "\n"), array("&lt;", "&gt;", "", "<br>"), $body["Data"]);
-
-														print("<font face=\"Courier New\" size=\"2\">");
+													if(isset($body["Type"]))
+														if($body["Type"] == 1)
+															print("<font face=\"Courier New\" size=\"2\">" . str_replace(array("<", ">", "\r", "\n"), array("&lt;", "&gt;", "", "<br>"), $body["Data"]) . "</font>");
+														elseif($body["Type"] == 2)
 															print($body["Data"]);
-														print("</font>");
-														}
-
-													if($body["Type"] == 2)
-														print($body["Data"]);
-													}
 
 											print("</div>");
 										print("</div>");
@@ -529,30 +516,27 @@ if($Request["Cmd"] == "Show")
 
 			print("<tr>");
 				print("<td colspan=\"3\">");
-					if($Request["CollectionId"] != "9002")
-						{
-						}
-					elseif(isset($data["AirSync"]["Class"]) === false)
-						{
-						}
-					elseif($data["AirSync"]["Class"] == "Email")
-						{
-						print("[");
-							print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'Reply' });\">");
-								print("Antworten");
-							print("</span>");
-						print("]");
-						print(" ");
-						}
-					elseif($data["AirSync"]["Class"] == "SMS")
-						{
-						print("[");
-							print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'Reply' });\">");
-								print("Antworten");
-							print("</span>");
-						print("]");
-						print(" ");
-						}
+					if($Request["CollectionId"] == "9002")
+						if(isset($data["AirSync"]["Class"]))
+							if($data["AirSync"]["Class"] == "Email")
+								{
+								print("[");
+									print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'Reply' });\">");
+										print("Antworten");
+									print("</span>");
+								print("]");
+								print(" ");
+								}
+							elseif($data["AirSync"]["Class"] == "SMS")
+								{
+								print("[");
+									print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'Reply' });\">");
+										print("Antworten");
+									print("</span>");
+								print("]");
+								print(" ");
+								}
+
 					print("[");
 						print("<span class=\"span_link\" onclick=\"handle_link({ cmd : 'DeleteConfirm' });\">");
 							print("Löschen");
@@ -635,12 +619,16 @@ if($Request["Cmd"] == "Show")
 						print("<select style=\"width: 300px;\" id=\"attachment\">");
 							foreach($data["Attachment"] as $id => $attachment)
 								{
+								$unit = 0;
+								$size = $attachment["AirSyncBase"]["EstimatedDataSize"];
+
+								while($size > 999)
+									list($size, $unit) = array($size / 1024, $unit + 1);
+
+								$label = number_format($size, 3 - strlen($size)) . " " . array("Byte", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "NB", "DB")[$unit];
+
 								print("<option value=\"" . $id . "\">");
-									print($attachment["AirSyncBase"]["DisplayName"]);
-									print(" ");
-									print("(");
-										print(active_sync_mail_file_size($attachment["AirSyncBase"]["EstimatedDataSize"]));
-									print(")");
+									printf("%s (%s)", $attachment["AirSyncBase"]["DisplayName"], $label);
 								print("</option>");
 								}
 						print("</select>");
@@ -663,7 +651,7 @@ if($Request["Cmd"] == "Upload")
 	{
 	if(active_sync_get_class_by_collection_id($Request["AuthUser"], $_GET["CollectionId"]) == "Email")
 		{
-		$file = DAT_DIR . "/../web/temp/" . $_GET["ItemId"];
+		$file = ACTIVE_SYNC_DAT_DIR . "/../web/temp/" . $_GET["ItemId"];
 
 		if($_GET["LongId"] == 0)
 			{

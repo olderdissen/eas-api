@@ -1,7 +1,7 @@
 <?
 if($Request["Cmd"] == "Policy")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/login.data");
 
 	foreach(active_sync_get_default_policy() as $token => $value)
 		$settings["Policy"]["Data"][$token] = (isset($settings["Policy"]["Data"][$token]) ? $settings["Policy"]["Data"][$token] : $value);
@@ -20,47 +20,49 @@ if($Request["Cmd"] == "Policy")
 			print("<tr>");
 				print("<td>");
 					print("<span id=\"policy_options\">");
-						foreach($restrictions as $policy_name => $policy_data)
+						foreach($restrictions as $restriction)
 							{
-							print("<span style=\"display: none;\" id=\"" . $policy_name . "\">");
-#								print("<p>" . $policy_name . "</p>");
+							$name = $restriction["Name"];
 
-								switch($policy_data["Type"])
+							print("<span style=\"display: none;\" id=\"" . $name . "\">");
+#								print("<p>" . $name . "</p>");
+
+								switch($restriction["Type"])
 									{
 									case("C"):
-										$checked = ($settings["Policy"]["Data"][$policy_name] == 1 ? " checked" : "");
+										$checked = ($settings["Policy"]["Data"][$name] == 1 ? " checked" : "");
 
-										print("<input type=\"checkbox\" name=\"" . $policy_name . "\" value=\"1\"" . $checked . ">");
+										print("<input type=\"checkbox\" name=\"" . $name . "\" value=\"1\"" . $checked . ">");
 
 										break;
 									case("L"):
-										print("<textarea name=\"" . $policy_name . "\" size=\"2\" style=\"height: 100px; width: 350px;\">");
-										print($settings["Policy"]["Data"][$policy_name]);
+										print("<textarea name=\"" . $name . "\" size=\"2\" style=\"height: 100px; width: 350px;\">");
+										print($settings["Policy"]["Data"][$name]);
 										print("</textarea>");
-										print($policy_data["Label"]);
+										print($restriction["Label"]);
 
 										break;
 									case("R"):
-										foreach($policy_data["Values"] as $value)
+										foreach($restriction["Values"] as $value)
 											{
-											$checked = ($settings["Policy"]["Data"][$policy_name] == $value ? " checked" : "");
+											$checked = ($settings["Policy"]["Data"][$name] == $value ? " checked" : "");
 
-											print("<input onchange=\"handle_link({ cmd : 'PolicyInit' });\" type=\"radio\" name=\"" . $policy_name . "\" value=\"" . $value . "\"" . $checked . ">");
+											print("<input onchange=\"handle_link({ cmd : 'PolicyInit' });\" type=\"radio\" name=\"" . $name . "\" value=\"" . $value . "\"" . $checked . ">");
 											print(" ");
 											print($value);
 											}
 
 										break;
 									case("S"):
-										print("<select name=\"" . $policy_name . "\" onchange=\"handle_link({ cmd : 'PolicyInit' });\" style=\"width: 350px;\">");
-											$selected = (strval($settings["Policy"]["Data"][$policy_name]) == "" ? " selected" : "");
+										print("<select name=\"" . $name . "\" onchange=\"handle_link({ cmd : 'PolicyInit' });\" style=\"width: 350px;\">");
+											$selected = (strval($settings["Policy"]["Data"][$name]) == "" ? " selected" : "");
 
 											print("<option value=\"\"" . $selected . ">");
 											print("</option>");
 
-											foreach($policy_data["Values"] as $value => $description)
+											foreach($restriction["Values"] as $value => $description)
 												{
-												$selected = (strval($settings["Policy"]["Data"][$policy_name]) == strval($value) ? " selected" : "");
+												$selected = (strval($settings["Policy"]["Data"][$name]) == strval($value) ? " selected" : "");
 
 												print("<option value=\"" . $value . "\"" . $selected . ">");
 													print("(" . $value . ") " . $description);
@@ -70,11 +72,11 @@ if($Request["Cmd"] == "Policy")
 
 										break;
 									case("T"):
-										print("<input " . (isset($policy_data["Min"]) && isset($policy_data["Max"]) ? "onkeypress=\"return numbersonly(this, event, " . $policy_data["Min"] . ", " . $policy_data["Max"] . ");\"" : "") . " type=\"text\" name=\"" . $policy_name . "\" style=\"text-align: right;\" size=\"" . $policy_data["Length"] . "\" maxlength=\"" . $policy_data["Length"] . "\" value=\"" . (isset($settings["Policy"]["Data"][$policy_name]) ? $settings["Policy"]["Data"][$policy_name] : $defaults[$policy_name]) . "\">");
+										print("<input " . (isset($restriction["Min"]) && isset($restriction["Max"]) ? "onkeypress=\"return numbersonly(this, event, " . $restriction["Min"] . ", " . $restriction["Max"] . ");\"" : "") . " type=\"text\" name=\"" . $name . "\" style=\"text-align: right;\" size=\"" . $restriction["Length"] . "\" maxlength=\"" . $restriction["Length"] . "\" value=\"" . (isset($settings["Policy"]["Data"][$name]) ? $settings["Policy"]["Data"][$name] : $defaults[$name]) . "\">");
 										print(" ");
-										print($policy_data["Label"]);
+										print($restriction["Label"]);
 										print(" ");
-										print(isset($policy_data["Min"]) && isset($policy_data["Max"]) ? " (" . $policy_data["Min"] . " ... " . $policy_data["Max"] . ")" : "");
+										print(isset($restriction["Min"]) && isset($restriction["Max"]) ? " (" . $restriction["Min"] . " ... " . $restriction["Max"] . ")" : "");
 
 										break;
 									}
@@ -116,21 +118,21 @@ if($Request["Cmd"] == "Policy")
 
 if($Request["Cmd"] == "PolicyDelete")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/login.data");
 
 	$settings["Policy"] = array
 		(
 		"PolicyKey" => time()
 		);
 
-	active_sync_put_settings(DAT_DIR . "/login.data", $settings);
+	active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/login.data", $settings);
 
 	print(1);
 	}
 
 if($Request["Cmd"] == "PolicySave")
 	{
-	$settings = active_sync_get_settings(DAT_DIR . "/login.data");
+	$settings = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/login.data");
 
 	$settings["Policy"] = array
 		(
@@ -153,23 +155,24 @@ if($Request["Cmd"] == "PolicySave")
 		foreach(active_sync_get_default_policy_password() as $key)
 			unset($settings["Policy"]["Data"][$key]);
 
-	active_sync_put_settings(DAT_DIR . "/login.data", $settings);
+	active_sync_put_settings(ACTIVE_SYNC_DAT_DIR . "/login.data", $settings);
 
 	print(1);
 	}
 
 function active_sync_get_default_policy_password()
 	{
-	$table = array();
-
-	$table[] = "AllowSimpleDevicePassword";
-	$table[] = "AlphanumericDevicePasswordRequired";
-	$table[] = "DevicePasswordExpiration";
-	$table[] = "DevicePasswordHistory";
-	$table[] = "MinDevicePasswordComplexCharacters";
-	$table[] = "MaxDevicePasswordFailedAttempts";
-	$table[] = "MinDevicePasswordLength";
-	$table[] = "PasswordRecoveryEnabled";
+	$table = array
+		(
+		"AllowSimpleDevicePassword",
+		"AlphanumericDevicePasswordRequired",
+		"DevicePasswordExpiration",
+		"DevicePasswordHistory",
+		"MinDevicePasswordComplexCharacters",
+		"MaxDevicePasswordFailedAttempts",
+		"MinDevicePasswordLength",
+		"PasswordRecoveryEnabled"
+		);
 
 	return($table);
 	}

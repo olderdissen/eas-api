@@ -1,7 +1,7 @@
 <?
 if($Request["Cmd"] == "Folder")
 	{
-	$folders = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$folders = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	print("<table>");
 		folders_list($folders);
@@ -133,7 +133,7 @@ if($Request["Cmd"] == "FolderDelete")
 
 if($Request["Cmd"] == "FolderEdit")
 	{
-	$folders = active_sync_get_settings(DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
+	$folders = active_sync_get_settings(ACTIVE_SYNC_DAT_DIR . "/" . $Request["AuthUser"] . ".sync");
 
 	print("<p>");
 		print("Vom Benutzer hinzugefügte Ordner werden möglicherweise nicht auf einem mobilen Endgerät dargestellt.");
