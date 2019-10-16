@@ -1,4 +1,10 @@
 <?php
+################################################################################
+# copyright 2008 - 2019 by Markus Olderdissen
+# free for private use or inspiration. 
+# public use need written permission.
+################################################################################
+
 define("ACTIVE_SYNC_DAT_DIR", __DIR__ . "/data");
 define("ACTIVE_SYNC_LOG_DIR", __DIR__ . "/logs");
 define("ACTIVE_SYNC_WEB_DIR", __DIR__ . "/web");
