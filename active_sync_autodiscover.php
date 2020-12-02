@@ -1,4 +1,11 @@
 <?
+define("ACTIVE_SYNC_AUTODISCOVER_REQUEST_OUTLOOK", "http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006");
+define("ACTIVE_SYNC_AUTODISCOVER_REQUEST_MOBILESYNC", "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/requestschema/2006");
+
+define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_DEFAULT", "http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006");
+define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_OUTLOOK", "http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a");
+define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_MOBILESYNC", "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006");
+
 function active_sync_handle_autodiscover($request)
 	{
 	$case = "";
@@ -14,14 +21,6 @@ function active_sync_handle_autodiscover($request)
 
 #	if(! isset($_SERVER["PHP_AUTH_USER"]))
 #		header("WWW-Authenticate: basic realm=\"ActiveSync\"");
-
-	define("ACTIVE_SYNC_AUTODISCOVER_REQUEST_OUTLOOK", "http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006");
-	define("ACTIVE_SYNC_AUTODISCOVER_REQUEST_MOBILESYNC", "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/requestschema/2006");
-
-	define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_DEFAULT", "http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006");
-	define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_OUTLOOK", "http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a");
-	define("ACTIVE_SYNC_AUTODISCOVER_RESPONSE_MOBILESYNC", "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006");
-
 
 	if($_SERVER["REQUEST_METHOD"] == "POST")
 		{
